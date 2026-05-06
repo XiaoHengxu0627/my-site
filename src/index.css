@@ -149,15 +149,33 @@ video {
   
   transform: translateZ(0);
   will-change: mask-image, -webkit-mask-image;
-  /* 用 CSS transition 平滑过渡遮罩尺寸变量 */
-  transition: --spotlight-radius 500ms ease-out, --spotlight-solid 500ms ease-out;
+  /* 恢复默认状态的缓动（更加悠长丝滑的收缩） */
+  transition: --spotlight-radius 800ms cubic-bezier(0.25, 0.1, 0.25, 1), 
+              --spotlight-solid 800ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* 点击全亮状态 */
+/* 基础点亮范围 */
 .video-bg.full-illumination {
   --spotlight-radius: 150vmax;
   --spotlight-solid: 150vmax;
-  transition: --spotlight-radius 300ms ease-in, --spotlight-solid 300ms ease-in;
+}
+
+/* 效果1：涟漪扩张（带有微弹跳感） */
+.video-bg.full-illumination.effect-ripple {
+  transition: --spotlight-radius 600ms cubic-bezier(0.34, 1.56, 0.64, 1), 
+              --spotlight-solid 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 效果2：电影级缓慢淡入（深邃优雅） */
+.video-bg.full-illumination.effect-cinematic {
+  transition: --spotlight-radius 1200ms cubic-bezier(0.65, 0, 0.35, 1), 
+              --spotlight-solid 1200ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* 效果3：瞬间爆发（如同闪电/快门） */
+.video-bg.full-illumination.effect-burst {
+  transition: --spotlight-radius 250ms cubic-bezier(0.1, 0.9, 0.2, 1), 
+              --spotlight-solid 250ms cubic-bezier(0.1, 0.9, 0.2, 1);
 }
 
 /* 为了让 CSS 自定义属性能被 transition，需要声明它们的类型 */

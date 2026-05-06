@@ -349,14 +349,23 @@ export default function ParticleText({ text }: { text: string }) {
     }
 
     let clickTimeoutId: ReturnType<typeof setTimeout>
+    const EFFECTS = ['effect-ripple', 'effect-cinematic', 'effect-burst']
+    let currentEffect = ''
 
     const handlePointerClick = () => {
       if (videoRef.current) {
-        videoRef.current.classList.add('full-illumination')
+        if (currentEffect) {
+          videoRef.current.classList.remove(currentEffect)
+        }
+        
+        currentEffect = EFFECTS[Math.floor(Math.random() * EFFECTS.length)]
+        videoRef.current.classList.add('full-illumination', currentEffect)
+        
         clearTimeout(clickTimeoutId)
         clickTimeoutId = setTimeout(() => {
           if (videoRef.current) {
-            videoRef.current.classList.remove('full-illumination')
+            videoRef.current.classList.remove('full-illumination', currentEffect)
+            currentEffect = ''
           }
         }, 3000)
       }
