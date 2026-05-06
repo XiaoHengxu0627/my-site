@@ -8,10 +8,15 @@ type Particle = {
   vx: number
   vy: number
   size: number
+  baseSize: number
   color: string
+  staticColor: string
   friction: number
   springFactor: number
   opacity: number
+  z: number
+  agitated: number
+  hue: number
 }
 
 // 德彪西风格（全音阶/五声音阶）的频率，C4 - C6
@@ -68,6 +73,7 @@ function playEtherealNote() {
 
 export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -75,11 +81,17 @@ export default function ParticleText({ text }: { text: string }) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
 
+    let isVisible = true
+    const observer = new IntersectionObserver((entries) => {
+      isVisible = entries[0].isIntersecting
+    })
+    if (canvas) observer.observe(canvas)
+
     let animationFrameId: number
     let particles: Particle[] = []
     let bgParticles: Particle[] = []
     
-    let mouse = { x: -9999, y: -9999, radius: 80 }
+    let mouse = { x: -9999, y: -9999, radius: 50 } // 鼠标排斥半径改为 50px
     let lastNoteTime = 0
 
     // 初始化尺寸
@@ -102,11 +114,16 @@ export default function ParticleText({ text }: { text: string }) {
           baseY: 0,
           vx: (Math.random() - 0.5) * 0.2,
           vy: (Math.random() - 0.5) * 0.2,
+          baseSize: 0,
           size: Math.random() * 1.5 + 0.2,
           color: '#ffffff',
+          staticColor: '',
           friction: 1,
           springFactor: 0,
-          opacity: Math.random() * 0.5 + 0.1
+          opacity: Math.random() * 0.5 + 0.1,
+          z: 0,
+          agitated: 0,
+          hue: 0
         })
       }
     }
@@ -127,8 +144,6 @@ export default function ParticleText({ text }: { text: string }) {
       offCtx.fillStyle = '#ffffff'
       offCtx.textAlign = 'center'
       offCtx.textBaseline = 'middle'
-      
-      // 添加字距
       offCtx.letterSpacing = '0.05em'
 
       offCtx.fillText(text, offscreen.width / 2, offscreen.height / 2)
@@ -136,35 +151,62 @@ export default function ParticleText({ text }: { text: string }) {
       const textCoordinates = offCtx.getImageData(0, 0, offscreen.width, offscreen.height)
       const data = textCoordinates.data
 
-      // 2. 根据像素数据生成粒子（增加采样步长，控制粒子数量）
-      const step = window.innerWidth < 768 ? 3 : 4 
+      let coords: {x: number, y: number}[] = []
       
-      for (let y = 0; y < offscreen.height; y += step) {
-        for (let x = 0; x < offscreen.width; x += step) {
-          // data 是以 r,g,b,a 顺序排列的
+      for (let y = 0; y < offscreen.height; y += 2) {
+        for (let x = 0; x < offscreen.width; x += 2) {
           const alpha = data[(y * offscreen.width + x) * 4 + 3]
-          
           if (alpha > 128) {
-            // 文字范围内的像素
-            particles.push({
-              x: x + (Math.random() - 0.5) * 50, // 初始带有轻微的随机偏移，有一个“汇聚”的入场感
-              y: y + (Math.random() - 0.5) * 50,
-              baseX: x,
-              baseY: y,
-              vx: 0,
-              vy: 0,
-              size: Math.random() * 1.2 + 0.8,
-              color: '#ffffff',
-              friction: 0.88, // 阻尼系数（越大越滑，越小越涩），营造柔顺感
-              springFactor: 0.03, // 弹力系数，越小回弹越慢，符合“慢、柔”
-              opacity: Math.random() * 0.6 + 0.4
-            })
+            coords.push({x, y})
           }
         }
+      }
+
+      // Shuffle and limit count
+      coords.sort(() => Math.random() - 0.5)
+      
+      let targetCount = Math.max(3000, Math.min(5000, coords.length))
+      if (coords.length < 3000) {
+        while(coords.length < 3000) {
+          coords = coords.concat(coords.slice(0, 3000 - coords.length))
+        }
+        targetCount = 3000
+      }
+      coords = coords.slice(0, targetCount)
+
+      for (let i = 0; i < coords.length; i++) {
+        const {x, y} = coords[i]
+        const z = Math.random() // 0 to 1 深度
+        const baseSize = Math.random() * 2.5 + 0.5 // 0.5 to 3
+        const opacity = z * 0.7 + 0.3
+
+        particles.push({
+          x: x + (Math.random() - 0.5) * 50,
+          y: y + (Math.random() - 0.5) * 50,
+          baseX: x,
+          baseY: y,
+          vx: 0,
+          vy: 0,
+          baseSize: baseSize,
+          size: baseSize,
+          color: '#ffffff',
+          staticColor: `rgba(255, 255, 255, ${opacity})`,
+          friction: 0.85 + z * 0.05,
+          springFactor: 0.02 + z * 0.02,
+          opacity: opacity,
+          z: z,
+          agitated: 0,
+          hue: Math.floor(Math.random() * 60) + 180 // Cyan/Blue hue
+        })
       }
     }
 
     const animate = () => {
+      if (!isVisible) {
+        animationFrameId = requestAnimationFrame(animate)
+        return
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       // 绘制背景粒子（深空感）
@@ -195,11 +237,14 @@ export default function ParticleText({ text }: { text: string }) {
           const force = (maxDistance - distance) / maxDistance
           
           // 施加推力（负号代表排斥）
-          const directionX = forceDirectionX * force * 1.5
-          const directionY = forceDirectionY * force * 1.5
+          const directionX = forceDirectionX * force * 5
+          const directionY = forceDirectionY * force * 5
           
           p.vx -= directionX
           p.vy -= directionY
+          p.agitated = Math.min(1, p.agitated + 0.15)
+        } else {
+          p.agitated = Math.max(0, p.agitated - 0.05)
         }
 
         // 弹簧恢复逻辑（自动聚拢回文字）
@@ -210,13 +255,31 @@ export default function ParticleText({ text }: { text: string }) {
         p.vx *= p.friction
         p.vy *= p.friction
 
+        // 加速运动 (速度提升200-300%)
+        const currentVx = p.vx * (1 + p.agitated * 2.5)
+        const currentVy = p.vy * (1 + p.agitated * 2.5)
+
         // 更新位置
-        p.x += p.vx
-        p.y += p.vy
+        p.x += currentVx
+        p.y += currentVy
+
+        // 脉动大小 (1.0 - 1.5倍)
+        if (p.agitated > 0) {
+          p.size = p.baseSize * (1 + p.agitated * 0.5 * Math.abs(Math.sin(Date.now() * 0.005 + p.z * 10)))
+        } else {
+          p.size = p.baseSize
+        }
+
+        // 颜色变化 (静态色 -> 高饱和色)
+        if (p.agitated > 0.01) {
+          const l = 100 - p.agitated * 40 // -> 60%
+          const s = p.agitated * 100 // -> 100%
+          ctx.fillStyle = `hsla(${p.hue}, ${s}%, ${l}%, ${p.opacity})`
+        } else {
+          ctx.fillStyle = p.staticColor
+        }
 
         // 绘制
-        ctx.globalAlpha = p.opacity
-        ctx.fillStyle = p.color
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
         ctx.fill()
@@ -250,12 +313,23 @@ export default function ParticleText({ text }: { text: string }) {
     
     // 监听鼠标/触摸移动
     const handlePointerMove = (e: MouseEvent | TouchEvent) => {
+      let clientX = -9999
+      let clientY = -9999
+
       if (e instanceof MouseEvent) {
-        mouse.x = e.x
-        mouse.y = e.y
+        clientX = e.clientX
+        clientY = e.clientY
       } else if (e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX
-        mouse.y = e.touches[0].clientY
+        clientX = e.touches[0].clientX
+        clientY = e.touches[0].clientY
+      }
+      
+      mouse.x = clientX
+      mouse.y = clientY
+
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--mouse-x', `${clientX}px`)
+        containerRef.current.style.setProperty('--mouse-y', `${clientY}px`)
       }
       
       // 顺便在此处尝试恢复 audioContext，以防浏览器策略限制
@@ -267,6 +341,10 @@ export default function ParticleText({ text }: { text: string }) {
     const handlePointerLeave = () => {
       mouse.x = -9999
       mouse.y = -9999
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--mouse-x', `-9999px`)
+        containerRef.current.style.setProperty('--mouse-y', `-9999px`)
+      }
     }
 
     window.addEventListener('mousemove', handlePointerMove)
@@ -279,6 +357,7 @@ export default function ParticleText({ text }: { text: string }) {
     animate()
 
     return () => {
+      if (canvas) observer.unobserve(canvas)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handlePointerMove)
       window.removeEventListener('touchmove', handlePointerMove)
@@ -289,17 +368,39 @@ export default function ParticleText({ text }: { text: string }) {
   }, [text])
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       style={{
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
-        display: 'block',
-        pointerEvents: 'none', // 让 canvas 不阻挡底层（如果有）但通过 window 监听鼠标
+        overflow: 'hidden',
+        pointerEvents: 'auto',
       }}
-    />
+    >
+      <video
+        className="video-bg"
+        src="/media/video.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          pointerEvents: 'none',
+          transform: 'translateZ(0)',
+        }}
+      />
+    </div>
   )
 }
