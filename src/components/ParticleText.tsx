@@ -156,7 +156,10 @@ export default function ParticleText({ text }: { text: string }) {
       const offCtx = offscreen.getContext('2d', { willReadFrequently: true })
       if (!offCtx) return
 
-      const fontSize = Math.min(window.innerWidth / 8, 120)
+      // 移动端字体可以适当放大一些（原本 /8 可能太小了），并且保证有个下限
+      const isMobile = window.innerWidth <= 860
+      const fontSize = isMobile ? Math.max(window.innerWidth / 6, 32) : Math.min(window.innerWidth / 8, 120)
+      
       offCtx.font = `800 ${fontSize}px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif`
       offCtx.fillStyle = '#ffffff'
       offCtx.textAlign = 'center'
@@ -170,8 +173,11 @@ export default function ParticleText({ text }: { text: string }) {
 
       let coords: {x: number, y: number}[] = []
       
-      for (let y = 0; y < offscreen.height; y += 2) {
-        for (let x = 0; x < offscreen.width; x += 2) {
+      // 增加步长逻辑：如果在极窄的移动端（字体很大但区域很小），避免找不到足够多的非透明像素
+      const step = isMobile ? 1 : 2
+      
+      for (let y = 0; y < offscreen.height; y += step) {
+        for (let x = 0; x < offscreen.width; x += step) {
           const alpha = data[(y * offscreen.width + x) * 4 + 3]
           if (alpha > 128) {
             coords.push({x, y})
@@ -179,15 +185,24 @@ export default function ParticleText({ text }: { text: string }) {
         }
       }
 
+      // 如果屏幕太小导致文字像素极少（防止死循环/崩溃）
+      if (coords.length === 0) return
+
       // Shuffle and limit count
       coords.sort(() => Math.random() - 0.5)
       
-      let targetCount = Math.max(3000, Math.min(5000, coords.length))
-      if (coords.length < 3000) {
-        while(coords.length < 3000) {
-          coords = coords.concat(coords.slice(0, 3000 - coords.length))
+      // 移动端由于屏幕小，粒子数可以适当减少，防止过度密集糊成一团
+      const minCount = isMobile ? 1500 : 3000
+      const maxCount = isMobile ? 2500 : 5000
+      let targetCount = Math.max(minCount, Math.min(maxCount, coords.length))
+      
+      if (coords.length < minCount) {
+        let tempCoords = [...coords]
+        while(tempCoords.length < minCount) {
+          tempCoords = tempCoords.concat(coords)
         }
-        targetCount = 3000
+        coords = tempCoords
+        targetCount = minCount
       }
       coords = coords.slice(0, targetCount)
 
