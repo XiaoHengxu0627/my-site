@@ -1,0 +1,103 @@
+{
+  "brandZh": "肖蘅栩 Hank.X",
+  "brandEn": "肖蘅栩 Hank.X",
+  "email": "xiaohengxu_0627@163.com",
+  "aboutTitleZh": "简介",
+  "aboutTitleEn": "About",
+  "aboutBodyZh": "关注以产品策略与数据洞察驱动业务增长，并通过 AI 能力提升效率与体验。",
+  "aboutBodyEn": "Focused on driving growth through product strategy and data insights, and improving efficiency and experience with AI.",
+  "aboutPhoto": "/media/xiaohengxu.jpg",
+  "aboutHeadingZh": "肖蘅栩",
+  "aboutHeadingEn": "Hank Xiao",
+  "resumeSections": [
+    {
+      "titleZh": "教育经历",
+      "titleEn": "Education",
+      "items": [
+        {
+          "titleZh": "北京理工大学·硕士｜智能创新产品方向",
+          "titleEn": "Beijing Institute of Technology · M.S. | Intelligent Innovative Product",
+          "timeZh": "2025年09月 - 2028年06月",
+          "timeEn": "Sep 2025 - Jun 2028"
+        },
+        {
+          "titleZh": "四川农业大学·本科｜交互与体验方向",
+          "titleEn": "Sichuan Agricultural University · B.A. | Interaction & Experience",
+          "timeZh": "2021年09月 - 2025年06月",
+          "timeEn": "Sep 2021 - Jun 2025"
+        }
+      ]
+    },
+    {
+      "titleZh": "工作经历",
+      "titleEn": "Experience",
+      "items": [
+        {
+          "titleZh": "美团｜到餐事业部｜商家成长业务｜商家 AI 产品经理",
+          "titleEn": "Meituan | In-Store Dining | Merchant Growth | AI Product Manager",
+          "timeZh": "2025年12月 - 2026年04月",
+          "timeEn": "Dec 2025 - Apr 2026",
+          "descZh": "业务介绍：强化智能掌柜的 AI 能力与商家基础体验迭代，提升价值感知，驱动付费转化与续费增长，提高商业化变现效率。",
+          "descEn": "Scope: Strengthen AI capabilities of the merchant assistant and iterate core merchant experience to improve value perception, drive paid conversion and renewal, and increase monetization efficiency.",
+          "bulletsZh": [
+            "付费链路重构：将付费购买权限扩展至管理员账号，降低商家对超管账号的付费依赖；同步设计多类账号购买链路与开票规则，解决订单归属、续费判断等数据隔离问题；上线一周付费率+0.24pp；付费门店数+278.45%；收入金额+224.14%。",
+            "掌柜会话页改版：针对商家提问门槛高/付费点深的问题，主导会话页改版，前置展示核心付费能力并新增推荐问；设计 AB 实验验证改版：CTR+2.11pp，主动提问商家数+2370，提问转化+4.56pp；上线后三项能力付费门店数+76.67%/+68.57%/+1628.57%。",
+            "同行 PK 策略优化：数据分析发现 30%~40% 商家 PK 失败，对未完成 PK 商家做数据探查（榜单32.6%>营销活动17.8%>经营数据10.8%）后重构推荐逻辑为多维度优先级策略，新增推荐标签提高 PK 率；PK 成功率+18.33pp，同行 PK 付费门店数+132.04%。",
+            "AI 对话评测系统：参与 AI 评测体系建设，制定覆盖信息准确性、逻辑框架、结构化表达三维度的 -1/0/1/2 四档评分标准与评测集，支撑每周 10000+ 商家真实会话的质量监测；持续迭代评测标准（2.0→3.0），推动模型≤0分 case 率稳定控制在 3% 以内。"
+          ],
+          "bulletsEn": [
+            "Paid funnel redesign: expanded purchase permission to admin accounts to reduce dependency on super-admin; designed flows and invoicing rules for multiple account types; resolved order attribution and renewal judgment isolation; +0.24pp paid rate in first week; +278.45% paid stores; +224.14% revenue.",
+            "Conversation page revamp: addressed high asking threshold and deep paywall; surfaced core paid capabilities and added suggested prompts; A/B validated uplift: +2.11pp CTR, +2370 proactive merchants, +4.56pp question-to-conversion; post-launch paid stores for three capabilities +76.67% / +68.57% / +1628.57%.",
+            "Peer PK strategy optimization: analysis found 30%–40% PK failures; investigated unfinished PK drivers (leaderboard 32.6% > campaigns 17.8% > ops data 10.8%); rebuilt recommendation logic with multi-dimensional priority and new tags; +18.33pp PK success rate; +132.04% paid stores from PK.",
+            "AI dialogue evaluation: helped build evaluation framework with -1/0/1/2 rubric across accuracy, reasoning, and structure; supported weekly quality monitoring for 10,000+ real merchant conversations; iterated standards (v2.0→v3.0) and kept ≤0-score case rate under 3%."
+          ]
+        },
+        {
+          "titleZh": "小米｜汽车部｜整车大数据业务｜数据产品经理",
+          "titleEn": "Xiaomi Auto | Vehicle Data Platform | Data Product Manager",
+          "timeZh": "2025年03月 - 2025年12月",
+          "timeEn": "Mar 2025 - Dec 2025",
+          "descZh": "业务介绍：聚焦整车数据看板分散、取数依赖人工、碰撞分析低效核心痛点，搭建数据门户并通过 AI 驱动数据消费与安全运营提效。",
+          "descEn": "Scope: Built a data portal to solve fragmented dashboards, manual data access, and inefficient crash analysis; improved data consumption and safety operations with AI.",
+          "bulletsZh": [
+            "数据门户搭建：主导跨业务线统一数据口径，将 40+ 分散看板收敛为 9 大专题 38 项核心看板，设计权限体系并搭建权限服务，全栈推进产品落地（独立完成前端开发/接口联调）；上线后覆盖部门 87% 成员（120+ 用户），周均使用 320+ 次，成为核心数据工具。",
+            "ChatBI 模块：对标瓴羊、网易有数等行业标杆，围绕问数/报告/解读三大场景设计 ChatBI 功能方案；主导数据源清洗与字段语义映射，支撑 RAG 语义召回准确率达 92%；上线后非技术人员取数占比提升至 70%，需求响应从 3 天压缩至实时。",
+            "碰撞事故自动化：对标 Tesla 输出安全策略调研，设计覆盖致因识别、责任判定等 23 项碰撞事故指标体系；协同技术团队完成数据架构方案，推动 AI 自动化碰撞数据标注落地，累计生成 380+ 份事故报告，效率提升 99.47%，用户满意度 96.9%。",
+            "C 端安全分产品：针对全量数据授权率偏低（62.54%）问题，从入口曝光、信息架构、交互引导三层系统优化触达与转化路径，同步优化安全评分体系的用户侧呈现；改版后授权率提升至 83.45%（+20.91pp），强化用户对小米汽车安全能力的认知心智。"
+          ],
+          "bulletsEn": [
+            "Data portal: unified definitions across business lines; consolidated 40+ dashboards into 9 themes and 38 core dashboards; designed permission system and service; drove end-to-end delivery (implemented frontend and API integration); adopted by 87% of the department (120+ users) with 320+ weekly uses.",
+            "ChatBI: benchmarked leading products; designed experiences for ask-data/report/interpretation; led data cleaning and semantic mapping for fields, achieving 92% RAG semantic retrieval accuracy; increased non-technical self-serve data access to 70% and reduced request response from 3 days to real-time.",
+            "Crash automation: benchmarked Tesla-style safety strategy; defined 23 crash metrics for cause identification and responsibility; co-designed data architecture and enabled AI-assisted crash data labeling; generated 380+ reports with 99.47% efficiency improvement and 96.9% satisfaction.",
+            "Consumer safety score: improved end-to-end consent and conversion for data authorization (baseline 62.54%) via exposure, information architecture, and guidance; refined user-facing safety scoring; increased authorization rate to 83.45% (+20.91pp) and strengthened safety perception."
+          ]
+        },
+        {
+          "titleZh": "OPPO｜互联网部｜游戏增长业务｜游戏产品经理",
+          "titleEn": "OPPO | Internet | Game Growth | Product Manager",
+          "timeZh": "2024年09月 - 2024年12月",
+          "timeEn": "Sep 2024 - Dec 2024",
+          "descZh": "业务介绍：聚焦平板端游戏体验短板，以键鼠映射功能为核心抓手，补齐与 PC 端操控精度差距，驱动游戏助手核心用户留存增长。",
+          "descEn": "Scope: Improved tablet gaming experience via key-mouse mapping to close the control-precision gap vs. PC and grow retention for the game assistant’s core users.",
+          "bulletsZh": [
+            "键鼠映射：整合 2000+ 条用户反馈与埋点数据交叉分析，定位误触率高、精准度低、多指协同难三大核心痛点；完成 4 款头部竞品功能对标，独立负责需求拆解与全链路交互逻辑设计；设计 20+ 核心埋点，构建用户行为数据反馈闭环，支撑后续迭代决策。",
+            "游戏助手体验：主导 AI 大神辅助模块新增 AI 能力，覆盖胜率预测、弹幕辅助、语音辅助三项核心能力，功能使用率提升 6.29%，深度使用率提升 3.87%；基于用户原声提炼需求，推动小游戏模块纳入游戏空间统一承载，上线后相关负面反馈降至近零。",
+            "成果反馈：键鼠映射上线后游戏助手 MAU 提升 1.83%（覆盖 50 万+ 用户），平板核心用户 3 日留存率提升 2.1%，操作类负面反馈减少 35%；助手体验（AI 大神辅助、游戏空间加入小游戏模块）优化落地后负面反馈率降低 73%，助手呼出率提升 1.78%。"
+          ],
+          "bulletsEn": [
+            "Key-mouse mapping: analyzed 2,000+ user feedback items alongside event data; identified three key issues (high mis-touch rate, low precision, difficult multi-finger coordination); benchmarked 4 leading competitors; owned requirement breakdown and end-to-end interaction design; designed 20+ key events to build a data feedback loop for iteration decisions.",
+            "Assistant experience: led AI helper enhancement across win-rate prediction, barrage assist, and voice assist; +6.29% feature usage and +3.87% deep usage; distilled needs from user voice and integrated mini-games into the unified game space, reducing related negative feedback to near zero.",
+            "Impact: mapping launch increased assistant MAU by 1.83% (500k+ users reached) and improved 3-day retention of tablet core users by 2.1%, with 35% fewer operation-related negatives; subsequent optimizations reduced negative feedback by 73% and increased assistant invocation rate by 1.78%."
+          ]
+        }
+      ]
+    }
+  ],
+  "contactBodyZh": "欢迎合作与交流。你也可以在下方直接发邮件。",
+  "contactBodyEn": "Open for collaboration. You can email me directly below.",
+  "copyright": "©2016-2026 Your Name All Rights Reserved.",
+  "socials": [
+    { "label": "小红书", "href": "https://xhslink.com/m/64jn9nhPZqH" },
+    { "label": "抖音", "href": "https://v.douyin.com/jaQrLCZAjEU/" }
+  ]
+}

@@ -1,0 +1,177 @@
+local_backend: true
+
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  - name: site
+    label: Site
+    files:
+      - name: site
+        label: Site Settings
+        file: public/content/site.json
+        format: json
+        fields:
+          - label: Brand (ZH)
+            name: brandZh
+            widget: string
+            hint: Top-left brand text (Chinese)
+            default: ""
+          - label: Brand (EN)
+            name: brandEn
+            widget: string
+            hint: Top-left brand text (English)
+            default: ""
+          - label: Email
+            name: email
+            widget: string
+            default: ""
+          - label: About Title (ZH)
+            name: aboutTitleZh
+            widget: string
+            default: ""
+          - label: About Title (EN)
+            name: aboutTitleEn
+            widget: string
+            default: ""
+          - label: About Body (ZH)
+            name: aboutBodyZh
+            widget: text
+            default: ""
+          - label: About Body (EN)
+            name: aboutBodyEn
+            widget: text
+            default: ""
+          - label: About Photo
+            name: aboutPhoto
+            widget: image
+            required: false
+          - label: About Heading (ZH)
+            name: aboutHeadingZh
+            widget: string
+            required: false
+            default: ""
+          - label: About Heading (EN)
+            name: aboutHeadingEn
+            widget: string
+            required: false
+            default: ""
+          - label: About Tagline (ZH)
+            name: aboutTaglineZh
+            widget: string
+            required: false
+            default: ""
+          - label: About Tagline (EN)
+            name: aboutTaglineEn
+            widget: string
+            required: false
+            default: ""
+          - label: Resume Sections
+            name: resumeSections
+            widget: list
+            required: false
+            fields:
+              - { label: Title (ZH), name: titleZh, widget: string }
+              - { label: Title (EN), name: titleEn, widget: string }
+              - label: Items
+                name: items
+                widget: list
+                fields:
+                  - { label: Title (ZH), name: titleZh, widget: string }
+                  - { label: Title (EN), name: titleEn, widget: string }
+                  - { label: Time (ZH), name: timeZh, widget: string, required: false }
+                  - { label: Time (EN), name: timeEn, widget: string, required: false }
+                  - { label: Description (ZH), name: descZh, widget: text, required: false }
+                  - { label: Description (EN), name: descEn, widget: text, required: false }
+                  - label: Bullets (ZH)
+                    name: bulletsZh
+                    widget: list
+                    required: false
+                    field: { label: Bullet, name: bullet, widget: string }
+                  - label: Bullets (EN)
+                    name: bulletsEn
+                    widget: list
+                    required: false
+                    field: { label: Bullet, name: bullet, widget: string }
+          - label: Contact Title (ZH)
+            name: contactTitleZh
+            widget: string
+            default: ""
+          - label: Contact Title (EN)
+            name: contactTitleEn
+            widget: string
+            default: ""
+          - label: Contact Body (ZH)
+            name: contactBodyZh
+            widget: text
+            default: ""
+          - label: Contact Body (EN)
+            name: contactBodyEn
+            widget: text
+            default: ""
+          - label: Footer Copyright
+            name: copyright
+            widget: string
+            default: ""
+          - label: Social Links
+            name: socials
+            widget: list
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string }
+
+  - name: projects
+    label: Projects
+    files:
+      - name: projects
+        label: Projects List
+        file: public/content/projects.json
+        format: json
+        fields:
+          - label: Projects
+            name: projects
+            widget: list
+            fields:
+              - { label: Slug, name: slug, widget: string }
+              - label: Section
+                name: section
+                widget: select
+                options:
+                  - { label: Digital Art, value: digitalart }
+                  - { label: Installations, value: installation }
+                  - { label: AV Performance, value: performance }
+              - { label: Title (ZH), name: titleZh, widget: string }
+              - { label: Title (EN), name: titleEn, widget: string }
+              - { label: Subtitle (ZH), name: subtitleZh, widget: string }
+              - { label: Subtitle (EN), name: subtitleEn, widget: string }
+              - { label: Year, name: year, widget: number, required: false }
+              - { label: Cover Image, name: cover, widget: image }
+              - { label: Hero Image, name: hero, widget: image, required: false }
+              - { label: Description (ZH), name: descZh, widget: text }
+              - { label: Description (EN), name: descEn, widget: text }
+              - label: Gallery
+                name: gallery
+                widget: list
+                required: false
+                fields:
+                  - label: Type
+                    name: type
+                    widget: select
+                    options:
+                      - { label: Image, value: image }
+                      - { label: Video, value: video }
+                  - { label: Source, name: src, widget: file }
+                  - { label: Poster (Video), name: poster, widget: image, required: false }
+                  - { label: Alt/Title (ZH), name: titleZh, widget: string, required: false }
+                  - { label: Alt/Title (EN), name: titleEn, widget: string, required: false }
+              - label: Awards
+                name: awards
+                widget: list
+                required: false
+                fields:
+                  - { label: Text (ZH), name: zh, widget: string }
+                  - { label: Text (EN), name: en, widget: string }

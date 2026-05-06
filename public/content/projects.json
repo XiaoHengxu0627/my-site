@@ -1,0 +1,155 @@
+{
+  "projects": [
+    {
+      "slug": "urban-oasis",
+      "section": "digitalart",
+      "titleZh": "城市绿洲",
+      "titleEn": "Urban Oasis",
+      "subtitleZh": "交互疗愈系统",
+      "subtitleEn": "Interactive Therapeutic System",
+      "year": 2023,
+      "cover": "/media/urban_oasis_main.jpg",
+      "hero": "/media/urban_oasis_main.jpg",
+      "descZh": "Urban Oasis 是一套以亲生物体验为核心的多感官交互疗愈系统。作品将园艺训练、感官刺激与交互反馈整合为可拓展的训练流程，用于促进心理健康与感官能力的提升，并支持在不同空间与场景中部署与扩展。",
+      "descEn": "Urban Oasis is a multi-sensory interactive therapeutic system grounded in biophilic experience. It integrates horticulture training, sensory stimulation, and interactive feedback into an extensible training workflow designed to support psychological well-being and strengthen sensory abilities across varied spaces and contexts.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/media/urban_oasis_video.mp4",
+          "poster": "/media/urban_oasis_main.jpg",
+          "titleZh": "",
+          "titleEn": ""
+        },
+        { "type": "image", "src": "/media/urban_oasis_1.jpg", "titleZh": "作品图 1", "titleEn": "Image 1" },
+        { "type": "image", "src": "/media/urban_oasis_2.jpg", "titleZh": "作品图 2", "titleEn": "Image 2" },
+        { "type": "image", "src": "/media/urban_oasis_3.jpg", "titleZh": "作品图 3", "titleEn": "Image 3" },
+        { "type": "image", "src": "/media/urban_oasis_4.jpg", "titleZh": "作品图 4", "titleEn": "Image 4" },
+        { "type": "image", "src": "/media/urban_oasis_5.jpg", "titleZh": "作品图 5", "titleEn": "Image 5" },
+        { "type": "image", "src": "/media/urban_oasis_7.jpg", "titleZh": "作品图 6", "titleEn": "Image 6" }
+      ],
+      "awards": [
+        {
+          "zh": "Promoting Psychological Well-Being and Sensory Abilities with Biophilic Horticulture Training｜A&HCI",
+          "en": "Promoting Psychological Well-Being and Sensory Abilities with Biophilic Horticulture Training｜A&HCI; First author"
+        },
+        {
+          "zh": "基于亲生物体验的多感官交互系统（发明专利）；第二发明人；202411153712.7",
+          "en": "Multi-sensory interactive system based on biophilic experience (Invention patent); Second inventor; 202411153712.7"
+        },
+        {
+          "zh": "一种多感官可拓展交互装置（实用新型专利）；第一发明人；202420367218.X",
+          "en": "An extensible multi-sensory interactive device (Utility model patent); First inventor; 202420367218.X"
+        },
+        {
+          "zh": "2024 米兰设计周「Digital Gardening」亚洲艺术展；入选",
+          "en": "Selected for the “Digital Gardening” Asia Art Exhibition at Milan Design Week 2024"
+        }
+      ]
+    },
+    {
+      "slug": "wanan-memory",
+      "section": "digitalart",
+      "titleZh": "万安记忆",
+      "titleEn": "Wanan Memory",
+      "subtitleZh": "交互虚拟空间",
+      "subtitleEn": "Interactive Virtual Space",
+      "year": 2024,
+      "cover": "/media/wanan_main.jpg",
+      "hero": "/media/wanan_main.jpg",
+      "descZh": "《万安记忆》是一件交互虚拟空间作品，通过影像与场景的并置组织观看节奏，呈现对记忆的回溯与重构。",
+      "descEn": "Wanan Memory is an interactive virtual space work that structures viewing rhythm through juxtaposed footage and scenes, evoking a process of recalling and reconstructing memories.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/media/wanan_video1.mp4",
+          "poster": "/media/wanan_main.jpg",
+          "titleZh": "",
+          "titleEn": ""
+        },
+        {
+          "type": "video",
+          "src": "/media/wanan_video2.mp4",
+          "poster": "/media/wanan_main.jpg",
+          "titleZh": "",
+          "titleEn": ""
+        },
+        { "type": "image", "src": "/media/wanan_1.jpg", "titleZh": "作品图 1", "titleEn": "Image 1" },
+        { "type": "image", "src": "/media/wanan_2.jpg", "titleZh": "作品图 2", "titleEn": "Image 2" },
+        { "type": "image", "src": "/media/wanan_3.jpg", "titleZh": "作品图 3", "titleEn": "Image 3" },
+        { "type": "image", "src": "/media/wanan_4.jpg", "titleZh": "作品图 4", "titleEn": "Image 4" },
+        { "type": "image", "src": "/media/wanan_5.jpg", "titleZh": "作品图 5", "titleEn": "Image 5" }
+      ],
+      "awards": [
+        {
+          "zh": "基于图像特征识别的文物修复智能交互方法及系统；第一发明人；ZL202410594170.0",
+          "en": "Intelligent interactive method and system for cultural relic restoration based on image feature recognition; First inventor; ZL202410594170.0"
+        },
+        {
+          "zh": "2024 香港数字艺术设计大赛一等奖",
+          "en": "First Prize, Hong Kong Digital Art Design Competition 2024"
+        },
+        {
+          "zh": "2024 FA 国际前沿创新艺术设计大赛（中国赛区）银奖",
+          "en": "Silver Award, FA International Frontier Innovation Art & Design Competition 2024 (China Division)"
+        },
+        {
+          "zh": "第四届 ICAD 国际当代青年美术设计大赛铜奖",
+          "en": "Bronze Award, 4th ICAD International Contemporary Youth Art & Design Competition"
+        }
+      ]
+    },
+    {
+      "slug": "quantified-self-book",
+      "section": "digitalart",
+      "titleZh": "量化自我",
+      "titleEn": "Quantified Self",
+      "subtitleZh": "信息可视化 / 书籍设计",
+      "subtitleEn": "Information Visualization / Book Design",
+      "year": 2024,
+      "cover": "/media/me_main.jpg",
+      "hero": "/media/me_main.jpg",
+      "descZh": "本书探讨“量化自我”的理念，“量化自我”是一种通过数据衡量和管理自己的生活方式，它可以帮助人们更好地了解自己，并做出更明智的决策。利用可视化编程生成数字化艺术图像，并通过新媒体软件艺术加工。结合数字艺术与新媒体艺术，创造出全新艺术形式来表达“量化自我”。",
+      "descEn": "Quantified Self Book translates personal data into a readable narrative through information visualization and editorial design, exploring how data can become a medium for self-awareness and self-management.",
+      "gallery": [
+        { "type": "image", "src": "/media/me_main.jpg", "titleZh": "作品图", "titleEn": "Work" },
+        { "type": "image", "src": "/media/me_1.jpg", "titleZh": "作品图 1", "titleEn": "Image 1" },
+        { "type": "image", "src": "/media/me_2.jpg", "titleZh": "作品图 2", "titleEn": "Image 2" },
+        { "type": "image", "src": "/media/me_3.jpg", "titleZh": "作品图 3", "titleEn": "Image 3" },
+        { "type": "image", "src": "/media/me_4.jpg", "titleZh": "作品图 4", "titleEn": "Image 4" },
+        { "type": "image", "src": "/media/me_5.jpg", "titleZh": "作品图 5", "titleEn": "Image 5" }
+      ],
+      "awards": [
+        {
+          "zh": "未来设计师四川赛区一等奖（负责人）",
+          "en": "Future Designer Awards (Sichuan Division) — First Prize (Project Lead)"
+        },
+        {
+          "zh": "米兰设计周四川赛区二等奖（负责人）",
+          "en": "Milan Design Week (Sichuan Division) — Second Prize (Project Lead)"
+        }
+      ]
+    },
+    {
+      "slug": "equiseam-airport",
+      "section": "digitalart",
+      "titleZh": "EquiSeam",
+      "titleEn": "EquiSeam",
+      "subtitleZh": "服务体验",
+      "subtitleEn": "Service Experience",
+      "year": 2024,
+      "cover": "/media/EquiSeam_main.jpg",
+      "hero": "/media/EquiSeam_main.jpg",
+      "descZh": "该项目受唐诺曼博士理念启发，专注于满足老年群体的深层情感与自尊需求。我意识到，对老年人而言，设计的价值不仅在于功能的便利和实用，更在于对其情感、独立性和个人尊严的尊重与维护。因此该系统深度融合智能科技，减轻老年旅客体力负担，配备智能导航系统，确保他们与行李准确、高效送达登机口。同时，注重满足老年人的无差异化体验，尊重其自尊需求。外观设计现代时尚，采用高品质材质，旨在满足“新老人”的现代审美与自尊心理，让他们在享受便捷服务的同时，感受到社会的尊重与关怀。",
+      "descEn": "Inspired by Dr. Don Norman’s philosophy, this project focuses on addressing older travelers’ deeper emotional needs and sense of dignity. It recognizes that the value of design for seniors lies not only in convenience and practicality, but also in respecting and protecting their emotions, independence, and personal dignity. The system integrates intelligent technologies to reduce physical strain, and includes smart navigation to ensure both travelers and their luggage reach the gate accurately and efficiently. It also emphasizes an inclusive, non-stigmatizing experience that honors self-esteem. With a modern, refined form and premium materials, it is designed for the “new seniors” who seek contemporary aesthetics and dignity—so they can enjoy convenient service while feeling respected and cared for by society.",
+      "gallery": [
+        { "type": "image", "src": "/media/EquiSeam_main.jpg", "titleZh": "作品图", "titleEn": "Work" },
+        { "type": "image", "src": "/media/EquiSeam_1.jpg", "titleZh": "作品图 1", "titleEn": "Image 1" },
+        { "type": "image", "src": "/media/EquiSeam_2.jpg", "titleZh": "作品图 2", "titleEn": "Image 2" },
+        { "type": "image", "src": "/media/EquiSeam_3.jpg", "titleZh": "作品图 3", "titleEn": "Image 3" },
+        { "type": "image", "src": "/media/EquiSeam_4.jpg", "titleZh": "作品图 4", "titleEn": "Image 4" },
+        { "type": "image", "src": "/media/EquiSeam_5.jpg", "titleZh": "作品图 5", "titleEn": "Image 5" },
+        { "type": "image", "src": "/media/EquiSeam_6.jpg", "titleZh": "作品图 6", "titleEn": "Image 6" }
+      ]
+    }
+  ]
+}
