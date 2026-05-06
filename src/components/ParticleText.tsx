@@ -82,6 +82,37 @@ export default function ParticleText({ text }: { text: string }) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
 
+    // 强化移动端视频自动播放策略
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true
+      videoRef.current.muted = true
+      videoRef.current.setAttribute('playsinline', 'true')
+      videoRef.current.setAttribute('webkit-playsinline', 'true')
+      
+      const playPromise = videoRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // 捕获 iOS 低电量模式或严格 Autoplay 策略导致的播放失败
+          // 等待用户下一次交互时强制唤醒
+          const forcePlay = () => {
+            if (videoRef.current) {
+              videoRef.current.play().catch(() => {})
+            }
+            window.removeEventListener('touchstart', forcePlay)
+            window.removeEventListener('click', forcePlay)
+          }
+          window.addEventListener('touchstart', forcePlay, { once: true })
+          window.addEventListener('click', forcePlay, { once: true })
+        })
+      }
+    }
+
+    // 强制给 CSS 变量注入初始中心点坐标，防止部分老旧移动端浏览器对 var() fallback 解析失效
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--mouse-x', `${window.innerWidth / 2}px`)
+      containerRef.current.style.setProperty('--mouse-y', `${window.innerHeight / 2}px`)
+    }
+
     let isVisible = true
     const observer = new IntersectionObserver((entries) => {
       isVisible = entries[0].isIntersecting
