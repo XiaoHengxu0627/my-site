@@ -162,8 +162,27 @@ video {
 
 /* 效果1：涟漪扩张（带有微弹跳感） */
 .video-bg.full-illumination.effect-ripple {
-  transition: --spotlight-radius 600ms cubic-bezier(0.34, 1.56, 0.64, 1), 
-              --spotlight-solid 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: none; /* 禁用基础的 transition，由动画完全接管扩张过程 */
+  animation: ripple-expand 1.8s ease-in-out forwards;
+}
+
+@keyframes ripple-expand {
+  0% {
+    --spotlight-radius: 150px;
+    --spotlight-solid: 120px;
+  }
+  30% {
+    --spotlight-radius: 40vmax;
+    --spotlight-solid: 30vmax;
+  }
+  45% {
+    --spotlight-radius: 35vmax;
+    --spotlight-solid: 25vmax;
+  }
+  100% {
+    --spotlight-radius: 150vmax;
+    --spotlight-solid: 150vmax;
+  }
 }
 
 /* 效果2：电影级缓慢淡入（深邃优雅） */
