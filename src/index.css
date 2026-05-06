@@ -123,6 +123,11 @@ video {
   background: #ffffff;
 }
 
+.home-mode .brand-mark,
+.home-mode .brand {
+  color: rgba(255, 255, 255, 0.85); /* 灰白色 */
+}
+
 .home-page {
   position: fixed;
   inset: 0;
