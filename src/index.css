@@ -140,10 +140,36 @@ video {
   object-fit: cover;
   z-index: -1;
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(circle 100px at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 80px, rgba(0,0,0,0.5) 100px, rgba(0,0,0,0.5) 100%);
-  mask-image: radial-gradient(circle 100px at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 80px, rgba(0,0,0,0.5) 100px, rgba(0,0,0,0.5) 100%);
+  /* 初始探照灯：扩大到 1.5 倍（实心区域 120px，羽化到 150px） */
+  --spotlight-radius: 150px;
+  --spotlight-solid: 120px;
+  
+  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
+  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
+  
   transform: translateZ(0);
   will-change: mask-image, -webkit-mask-image;
+  /* 用 CSS transition 平滑过渡遮罩尺寸变量 */
+  transition: --spotlight-radius 500ms ease-out, --spotlight-solid 500ms ease-out;
+}
+
+/* 点击全亮状态 */
+.video-bg.full-illumination {
+  --spotlight-radius: 150vmax;
+  --spotlight-solid: 150vmax;
+  transition: --spotlight-radius 300ms ease-in, --spotlight-solid 300ms ease-in;
+}
+
+/* 为了让 CSS 自定义属性能被 transition，需要声明它们的类型 */
+@property --spotlight-radius {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 150px;
+}
+@property --spotlight-solid {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 120px;
 }
 
 .home-logo .brand-mark {

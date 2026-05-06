@@ -74,6 +74,7 @@ function playEtherealNote() {
 export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -347,10 +348,26 @@ export default function ParticleText({ text }: { text: string }) {
       }
     }
 
+    let clickTimeoutId: ReturnType<typeof setTimeout>
+
+    const handlePointerClick = () => {
+      if (videoRef.current) {
+        videoRef.current.classList.add('full-illumination')
+        clearTimeout(clickTimeoutId)
+        clickTimeoutId = setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.classList.remove('full-illumination')
+          }
+        }, 3000)
+      }
+    }
+
     window.addEventListener('mousemove', handlePointerMove)
     window.addEventListener('touchmove', handlePointerMove)
     window.addEventListener('mouseleave', handlePointerLeave)
     window.addEventListener('touchend', handlePointerLeave)
+    window.addEventListener('click', handlePointerClick)
+    window.addEventListener('touchstart', handlePointerClick)
 
     // 初始化并开始动画
     resize()
@@ -363,6 +380,9 @@ export default function ParticleText({ text }: { text: string }) {
       window.removeEventListener('touchmove', handlePointerMove)
       window.removeEventListener('mouseleave', handlePointerLeave)
       window.removeEventListener('touchend', handlePointerLeave)
+      window.removeEventListener('click', handlePointerClick)
+      window.removeEventListener('touchstart', handlePointerClick)
+      clearTimeout(clickTimeoutId)
       cancelAnimationFrame(animationFrameId)
     }
   }, [text])
@@ -381,6 +401,7 @@ export default function ParticleText({ text }: { text: string }) {
       }}
     >
       <video
+        ref={videoRef}
         className="video-bg"
         src="/media/video.mp4"
         autoPlay
