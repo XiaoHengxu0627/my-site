@@ -11,7 +11,7 @@ const NotFound = lazy(() => import('./routes/NotFound.tsx'))
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <LocaleProvider>
         <Suspense
           fallback={
