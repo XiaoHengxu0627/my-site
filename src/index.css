@@ -75,6 +75,71 @@ video {
   padding-bottom: 72px;
 }
 
+.home-mode .main {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.home-mode .site-footer {
+  display: none;
+}
+
+.home-mode .site-header {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.home-mode .menu-toggle-bar {
+  background: #ffffff;
+}
+
+.home-mode .nav-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.home-mode .nav-link:hover {
+  color: #ffffff;
+}
+
+.home-mode .nav-link-active {
+  color: #ffffff;
+}
+
+.home-mode .lang-switch {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.home-mode .lang-option {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.home-mode .lang-option + .lang-option {
+  border-left-color: rgba(255, 255, 255, 0.22);
+}
+
+.home-mode .lang-option-active {
+  color: #000000;
+  background: #ffffff;
+}
+
+.home-page {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  display: block;
+  overflow: hidden;
+}
+
+.home-logo .brand-mark {
+  color: #ffffff;
+  font-size: clamp(28px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+  text-align: center;
+}
+
 .site-header {
   position: fixed;
   top: 0;
@@ -178,6 +243,7 @@ video {
   font-size: 13px;
   letter-spacing: 0.2px;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .lang-option-active {
@@ -779,6 +845,8 @@ video {
   .lang-switch {
     margin-left: 0;
     justify-content: flex-start;
+    justify-self: start;
+    align-self: start;
   }
 
   .project-title,

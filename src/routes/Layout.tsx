@@ -18,6 +18,7 @@ function TitleManager() {
     if (
       pathname === '' ||
       pathname === '/' ||
+      pathname === '/home' ||
       pathname === '/digitalart' ||
       pathname === '/installation' ||
       pathname === '/performance'

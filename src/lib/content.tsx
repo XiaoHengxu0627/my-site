@@ -167,6 +167,7 @@ function zipLocalizedArray(
 }
 
 const DEFAULT_NAV: SiteNavItem[] = [
+  { to: '/home', label: { zh: '主页', en: 'Home' } },
   { to: '/digitalart', label: { zh: '作品', en: 'Works' } },
   { to: '/about', label: { zh: '简介', en: 'About' } },
   { to: '/contact', label: { zh: '联系', en: 'Contact' } },
