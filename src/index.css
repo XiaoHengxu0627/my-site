@@ -149,8 +149,8 @@ video {
   --spotlight-radius: 150px;
   --spotlight-solid: 120px;
   
-  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
-  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
+  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
+  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
   
   transform: translateZ(0);
   will-change: mask-image, -webkit-mask-image;

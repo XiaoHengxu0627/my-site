@@ -94,9 +94,25 @@ export default function ParticleText({ text }: { text: string }) {
     
     let mouse = { x: -9999, y: -9999, radius: 50 } // 鼠标排斥半径改为 50px
     let lastNoteTime = 0
+    let lastWidth = window.innerWidth
+    let lastHeight = window.innerHeight
 
     // 初始化尺寸
     const resize = () => {
+      // 防抖：移动端上下滚动地址栏收缩会触发 resize（高度变化），避免此时重新生成 5000 粒子导致严重卡顿
+      const isMobile = window.innerWidth <= 860
+      if (isMobile) {
+        const heightDiff = Math.abs(window.innerHeight - lastHeight)
+        const widthDiff = Math.abs(window.innerWidth - lastWidth)
+        // 如果宽度没变，且高度变化小于 120px (通常是地址栏高度)，则跳过重新生成
+        if (widthDiff === 0 && heightDiff < 120) {
+          lastHeight = window.innerHeight
+          return
+        }
+      }
+      
+      lastWidth = window.innerWidth
+      lastHeight = window.innerHeight
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
       initParticles()
@@ -314,8 +330,8 @@ export default function ParticleText({ text }: { text: string }) {
     
     // 监听鼠标/触摸移动
     const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-      let clientX = -9999
-      let clientY = -9999
+      let clientX = mouse.x
+      let clientY = mouse.y
 
       if (e instanceof MouseEvent) {
         clientX = e.clientX
@@ -340,11 +356,12 @@ export default function ParticleText({ text }: { text: string }) {
     }
 
     const handlePointerLeave = () => {
+      // 离开时，不要将探照灯设置到 -9999px（导致完全黑屏），而是重置到屏幕中央
       mouse.x = -9999
       mouse.y = -9999
       if (containerRef.current) {
-        containerRef.current.style.setProperty('--mouse-x', `-9999px`)
-        containerRef.current.style.setProperty('--mouse-y', `-9999px`)
+        containerRef.current.style.setProperty('--mouse-x', `50vw`)
+        containerRef.current.style.setProperty('--mouse-y', `50vh`)
       }
     }
 
@@ -352,7 +369,18 @@ export default function ParticleText({ text }: { text: string }) {
     const EFFECTS = ['effect-ripple', 'effect-cinematic', 'effect-burst']
     let currentEffect = ''
 
-    const handlePointerClick = () => {
+    const handlePointerClick = (e: MouseEvent | TouchEvent) => {
+      // 移动端点击时，如果没有经过 move，需要强制更新一次坐标
+      if (e && 'touches' in e && e.touches.length > 0) {
+        handlePointerMove(e)
+      } else if (e instanceof MouseEvent) {
+        handlePointerMove(e)
+      }
+
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume()
+      }
+
       if (videoRef.current) {
         if (currentEffect) {
           videoRef.current.classList.remove(currentEffect)
