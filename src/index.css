@@ -787,6 +787,47 @@ video {
   transform: translateY(-1px);
 }
 
+.cursor-hint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms ease, visibility 800ms ease;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+
+.cursor-hint.visible {
+  opacity: 1;
+  visibility: visible;
+  animation: hint-pulse 2s infinite alternate ease-in-out;
+}
+
+.cursor-hint-icon {
+  font-size: 16px;
+}
+
+@keyframes hint-pulse {
+  0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }
+  100% { box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15); }
+}
+
 .hint {
   font-size: 13px;
   color: var(--muted);
@@ -955,6 +996,11 @@ video {
 
   .resume-photo img {
     aspect-ratio: 16 / 9;
+  }
+
+  .cursor-hint {
+    font-size: 13px;
+    padding: 6px 14px;
   }
 
   .brand-mark {
