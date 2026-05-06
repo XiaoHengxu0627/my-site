@@ -1,0 +1,6 @@
+name = "hankx"
+main = "src/worker.ts"
+compatibility_date = "2026-05-06"
+
+[assets]
+directory = "./dist"
