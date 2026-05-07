@@ -83,7 +83,7 @@ export default function ParticleText({ text }: { text: string }) {
     const baseNormalized = base.endsWith('/') ? base : `${base}/`
     return {
       videoSrc: `${baseNormalized}media/video.mp4`,
-      posterSrc: `${baseNormalized}media/1.jpg`,
+      posterSrc: `${baseNormalized}media/1.png`,
     }
   }, [])
 
