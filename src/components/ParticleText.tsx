@@ -85,7 +85,6 @@ export default function ParticleText({ text }: { text: string }) {
   const [progress, setProgress] = useState(0)
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
-  const [videoTimeout, setVideoTimeout] = useState(false)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -99,21 +98,18 @@ export default function ParticleText({ text }: { text: string }) {
   // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
     const t = window.setTimeout(() => setMinLoadingElapsed(true), 1500)
-    // If video takes more than 5 seconds, we give up waiting for it so user isn't stuck
-    const vTimeout = window.setTimeout(() => setVideoTimeout(true), 5000)
-    const hardCap = window.setTimeout(() => setForceHideLoading(true), 15000)
+    const hardCap = window.setTimeout(() => setForceHideLoading(true), 30000)
     return () => {
       window.clearTimeout(t)
-      window.clearTimeout(vTimeout)
       window.clearTimeout(hardCap)
     }
   }, [])
 
-  // Simulated progress easing over 3s
+  // Simulated progress easing over 10s
   useEffect(() => {
     let startTime = performance.now()
     let animationFrame: number
-    const duration = 3000
+    const duration = 10000
 
     const updateProgress = (currentTime: number) => {
       const elapsed = currentTime - startTime
@@ -533,7 +529,7 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [text])
 
-  const readyToReveal = (videoReady || ((videoFailed || videoTimeout) && fallbackReady)) && canvasReady
+  const readyToReveal = (videoReady || (videoFailed && fallbackReady)) && canvasReady
 
   useEffect(() => {
     if (readyToReveal && minLoadingElapsed) {
@@ -577,8 +573,8 @@ export default function ParticleText({ text }: { text: string }) {
         loop
         muted
         playsInline
-        onLoadedData={() => setVideoReady(true)}
         onCanPlay={() => setVideoReady(true)}
+        onCanPlayThrough={() => setVideoReady(true)}
         onPlaying={() => setVideoPlaying(true)}
         onPause={() => setVideoPlaying(false)}
         onEnded={() => setVideoPlaying(false)}
