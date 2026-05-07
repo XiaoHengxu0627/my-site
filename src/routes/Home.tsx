@@ -26,7 +26,6 @@ export default function Home() {
   return (
     <div className="home-page" role="main" aria-label={brandText || 'Home'}>
       {brandText && <ParticleText text={brandText} />}
-      {/* 移动端不显示提示，因为取消了全屏点亮 */}
       <div className="hidden-on-mobile">
         <CursorHint
           text={content.t({ zh: '尝试点击屏幕探索更多', en: 'Click anywhere to explore' })}

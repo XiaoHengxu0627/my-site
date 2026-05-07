@@ -73,6 +73,10 @@ function playEtherealNote() {
 }
 
 export default function ParticleText({ text }: { text: string }) {
+  const computeIsMobile = () =>
+    window.innerWidth <= 860 ||
+    (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -86,22 +90,38 @@ export default function ParticleText({ text }: { text: string }) {
   const [progress, setProgress] = useState(0)
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [isMobile, setIsMobile] = useState(computeIsMobile)
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    const handleResize = () => setIsMobile(computeIsMobile())
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const { videoSrc, posterSrc } = useMemo(() => {
+  useEffect(() => {
+    setVideoFailed(isMobile)
+    setVideoReady(false)
+    setVideoPlaying(false)
+    setFallbackReady(false)
+  }, [isMobile])
+
+  useEffect(() => {
+    if (!isMobile) return
+    const els = [videoRef.current, fallbackRef.current].filter(Boolean) as HTMLElement[]
+    els.forEach((el) => {
+      el.classList.remove('full-illumination', 'effect-ripple', 'effect-cinematic', 'effect-burst')
+    })
+  }, [isMobile])
+
+  const { videoSrc, gifSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
     const baseNormalized = base.endsWith('/') ? base : `${base}/`
     return {
-      videoSrc: `${baseNormalized}media/${isMobile ? 'app.mp4' : 'video.mp4'}`,
+      videoSrc: `${baseNormalized}media/video.mp4`,
+      gifSrc: `${baseNormalized}media/APP.GIF`,
       posterSrc: `${baseNormalized}media/1.png`,
     }
-  }, [isMobile])
+  }, [])
 
   // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
@@ -491,8 +511,7 @@ export default function ParticleText({ text }: { text: string }) {
         audioCtx.resume()
       }
 
-      // 移动端的主页不需要点击变亮的交互，直接返回
-      if (window.innerWidth <= 768) {
+      if (computeIsMobile()) {
         return
       }
 
@@ -581,33 +600,49 @@ export default function ParticleText({ text }: { text: string }) {
       }}
     >
       {loadingOverlay}
-      <video
-        ref={videoRef}
-        className="video-bg"
-        src={videoSrc}
-        poster={posterSrc}
-        preload="auto"
-        autoPlay
-        loop
-        muted
-        playsInline
-        onCanPlay={() => setVideoReady(true)}
-        onCanPlayThrough={() => setVideoReady(true)}
-        onPlaying={() => setVideoPlaying(true)}
-        onPause={() => setVideoPlaying(false)}
-        onEnded={() => setVideoPlaying(false)}
-        onError={() => setVideoFailed(true)}
-      />
-      <img
-        ref={fallbackRef}
-        src={posterSrc}
-        alt=""
-        aria-hidden="true"
-        className={`video-fallback${videoPlaying ? ' hidden' : ''}`}
-        decoding="async"
-        loading="eager"
-        onLoad={() => setFallbackReady(true)}
-      />
+      {isMobile ? (
+        <img
+          ref={fallbackRef}
+          src={gifSrc}
+          alt=""
+          aria-hidden="true"
+          className="video-bg"
+          decoding="async"
+          loading="eager"
+          onLoad={() => setFallbackReady(true)}
+          onError={() => setVideoFailed(true)}
+        />
+      ) : (
+        <>
+          <video
+            ref={videoRef}
+            className="video-bg"
+            src={videoSrc}
+            poster={posterSrc}
+            preload="auto"
+            autoPlay
+            loop
+            muted
+            playsInline
+            onCanPlay={() => setVideoReady(true)}
+            onCanPlayThrough={() => setVideoReady(true)}
+            onPlaying={() => setVideoPlaying(true)}
+            onPause={() => setVideoPlaying(false)}
+            onEnded={() => setVideoPlaying(false)}
+            onError={() => setVideoFailed(true)}
+          />
+          <img
+            ref={fallbackRef}
+            src={posterSrc}
+            alt=""
+            aria-hidden="true"
+            className={`video-fallback${videoPlaying ? ' hidden' : ''}`}
+            decoding="async"
+            loading="eager"
+            onLoad={() => setFallbackReady(true)}
+          />
+        </>
+      )}
       <canvas
         ref={canvasRef}
         style={{
