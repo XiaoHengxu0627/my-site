@@ -173,6 +173,19 @@ const DEFAULT_NAV: SiteNavItem[] = [
   { to: '/contact', label: { zh: '联系', en: 'Contact' } },
 ]
 
+function withBase(path: string) {
+  const base = import.meta.env.BASE_URL || '/'
+  const baseNormalized = base.endsWith('/') ? base : `${base}/`
+  const pathNormalized = path.startsWith('/') ? path.slice(1) : path
+  return `${baseNormalized}${pathNormalized}`
+}
+
+function withBaseIfRelative(path?: string) {
+  if (!path) return undefined
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(path)) return path
+  return withBase(path)
+}
+
 async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(path, { headers: { Accept: 'application/json' } })
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
@@ -187,8 +200,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     setState({ status: 'loading' })
     Promise.all([
-      fetchJson<CmsSite>('/content/site.json'),
-      fetchJson<CmsProjects>('/content/projects.json'),
+      fetchJson<CmsSite>(withBase('content/site.json')),
+      fetchJson<CmsProjects>(withBase('content/projects.json')),
     ])
       .then(([cmsSite, cmsProjects]) => {
         if (cancelled) return
@@ -203,7 +216,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
             about: {
               title: { zh: cmsSite.aboutTitleZh, en: cmsSite.aboutTitleEn },
               body: { zh: cmsSite.aboutBodyZh, en: cmsSite.aboutBodyEn },
-              photo: cmsSite.aboutPhoto,
+              photo: withBaseIfRelative(cmsSite.aboutPhoto),
               heading: toLocalized(cmsSite.aboutHeadingZh, cmsSite.aboutHeadingEn),
               tagline: toLocalized(cmsSite.aboutTaglineZh, cmsSite.aboutTaglineEn),
               resumeSections: cmsSite.resumeSections?.map((s) => ({
@@ -233,8 +246,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
           title: { zh: p.titleZh, en: p.titleEn },
           subtitle: { zh: p.subtitleZh, en: p.subtitleEn },
           year: p.year,
-          cover: p.cover,
-          hero: p.hero,
+          cover: withBaseIfRelative(p.cover) ?? p.cover,
+          hero: withBaseIfRelative(p.hero),
           description: { zh: p.descZh, en: p.descEn },
           gallery: p.gallery?.map((m) => {
             const text =
@@ -242,9 +255,14 @@ export function ContentProvider({ children }: { children: ReactNode }) {
                 ? { zh: m.titleZh ?? '', en: m.titleEn ?? '' }
                 : undefined
             if (m.type === 'video') {
-              return { type: 'video', src: m.src, poster: m.poster, title: text }
+              return {
+                type: 'video',
+                src: withBaseIfRelative(m.src) ?? m.src,
+                poster: withBaseIfRelative(m.poster),
+                title: text,
+              }
             }
-            return { type: 'image', src: m.src, alt: text }
+            return { type: 'image', src: withBaseIfRelative(m.src) ?? m.src, alt: text }
           }),
           awards: p.awards,
         }))
