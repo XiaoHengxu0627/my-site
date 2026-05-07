@@ -71,6 +71,19 @@ function playEtherealNote() {
   osc.stop(now + 3)
 }
 
+function parseGifDurationMs(buf: ArrayBuffer) {
+  const bytes = new Uint8Array(buf)
+  let totalMs = 0
+  for (let i = 0; i + 7 < bytes.length; i++) {
+    if (bytes[i] !== 0x21 || bytes[i + 1] !== 0xf9 || bytes[i + 2] !== 0x04) continue
+    const delayCs = bytes[i + 4] | (bytes[i + 5] << 8)
+    const delayMs = Math.max(10, delayCs * 10)
+    totalMs += delayMs
+    i += 7
+  }
+  return totalMs
+}
+
 export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -81,6 +94,9 @@ export default function ParticleText({ text }: { text: string }) {
   const [fallbackReady, setFallbackReady] = useState(false)
   const [canvasReady, setCanvasReady] = useState(false)
   const [forceHideLoading, setForceHideLoading] = useState(false)
+  const [minLoadingElapsed, setMinLoadingElapsed] = useState(false)
+  const [loadingMinMs, setLoadingMinMs] = useState<number | null>(null)
+  const loadingStartRef = useRef<number>(0)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -97,9 +113,37 @@ export default function ParticleText({ text }: { text: string }) {
   }, [])
 
   useEffect(() => {
-    const t = window.setTimeout(() => setForceHideLoading(true), 2500)
+    loadingStartRef.current = performance.now()
+    let cancelled = false
+
+    fetch(loadingSrc)
+      .then((r) => r.arrayBuffer())
+      .then((buf) => {
+        if (cancelled) return
+        const durationMs = parseGifDurationMs(buf)
+        const minMs = durationMs > 0 ? durationMs * 10 : 10000
+        setLoadingMinMs(minMs)
+      })
+      .catch(() => setLoadingMinMs(10000))
+
+    const hardCap = window.setTimeout(() => setForceHideLoading(true), 60000)
+    return () => {
+      cancelled = true
+      window.clearTimeout(hardCap)
+    }
+  }, [loadingSrc])
+
+  useEffect(() => {
+    if (loadingMinMs === null) return
+    if (loadingMinMs === 0) {
+      setMinLoadingElapsed(true)
+      return
+    }
+    const elapsed = performance.now() - loadingStartRef.current
+    const remaining = Math.max(0, loadingMinMs - elapsed)
+    const t = window.setTimeout(() => setMinLoadingElapsed(true), remaining)
     return () => window.clearTimeout(t)
-  }, [])
+  }, [loadingMinMs])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -499,8 +543,8 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [text])
 
-  const showLoading =
-    !forceHideLoading && !((videoReady || fallbackReady) && canvasReady)
+  const readyToReveal = (videoReady || fallbackReady) && canvasReady
+  const showLoading = !(minLoadingElapsed && (readyToReveal || forceHideLoading))
 
   return (
     <div
