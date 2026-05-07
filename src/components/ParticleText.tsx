@@ -488,8 +488,6 @@ export default function ParticleText({ text }: { text: string }) {
         ref={videoRef}
         className="video-bg"
         src="/media/video.mp4"
-        poster="/media/me_main.jpg"
-        preload="auto"
         autoPlay
         loop
         muted
