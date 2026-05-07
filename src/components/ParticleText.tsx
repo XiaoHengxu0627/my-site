@@ -90,6 +90,11 @@ export default function ParticleText({ text }: { text: string }) {
       posterSrc: `${baseNormalized}media/1.png`,
     }
   }, [])
+  const loadingSrc = useMemo(() => {
+    const base = import.meta.env.BASE_URL || '/'
+    const baseNormalized = base.endsWith('/') ? base : `${base}/`
+    return `${baseNormalized}media/loading.GIF`
+  }, [])
 
   useEffect(() => {
     const t = window.setTimeout(() => setForceHideLoading(true), 2500)
@@ -512,7 +517,13 @@ export default function ParticleText({ text }: { text: string }) {
       }}
     >
       <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
-        <div className="home-loading-spinner" aria-hidden="true" />
+        <img
+          className="home-loading-gif"
+          src={loadingSrc}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+        />
       </div>
       <video
         ref={videoRef}

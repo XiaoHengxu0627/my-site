@@ -144,19 +144,10 @@ video {
   opacity: 0;
 }
 
-.home-loading-spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  border-top-color: rgba(255, 255, 255, 0.92);
-  animation: home-spin 900ms linear infinite;
-}
-
-@keyframes home-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.home-loading-gif {
+  width: min(320px, 72vw);
+  height: auto;
+  image-rendering: auto;
 }
 
 .home-mode {
