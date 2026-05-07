@@ -248,13 +248,6 @@ body.home-mode {
   opacity: calc(1 - (var(--home-scroll) * 0.85));
 }
 
-.home-mode .video-bg,
-.home-mode .video-fallback {
-  filter: brightness(calc(0.75 + (var(--home-scroll) * 0.35)))
-    saturate(calc(1 + (var(--home-scroll) * 0.15)));
-  transition: filter 500ms ease;
-}
-
 .home-page {
   position: fixed;
   inset: 0;
@@ -264,90 +257,18 @@ body.home-mode {
 }
 
 .home-mode .home-page {
-  background: radial-gradient(
-    1100px circle at 50% 30%,
-    rgba(255, 255, 255, 0.06),
-    rgba(0, 0, 0, 1) 62%
-  );
-  transition: background 600ms ease;
-}
-
-.home-mode.home-scrolled .home-page {
-  background: radial-gradient(
-    900px circle at 50% 0%,
-    rgba(0, 220, 255, 0.1),
-    rgba(0, 0, 0, 1) 60%
-  );
+  background: #000000;
 }
 
 .video-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-  /* 初始探照灯：扩大到 1.5 倍（实心区域 120px，羽化到 150px） */
-  --spotlight-radius: 150px;
-  --spotlight-solid: 120px;
-  
-  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
-  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
-  
-  transform: translateZ(0);
-  will-change: mask-image, -webkit-mask-image;
-  /* 恢复默认状态的缓动（更加悠长丝滑的收缩） */
-  transition: --spotlight-radius 800ms cubic-bezier(0.25, 0.1, 0.25, 1), 
-              --spotlight-solid 800ms cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.mobile-bg {
-  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 240ms ease;
-}
-
-.mobile-gif-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.mobile-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 240ms ease;
   background: #000;
-}
-
-.mobile-bg.hidden,
-.mobile-video.hidden {
-  opacity: 0;
-}
-
-.mobile-bg-dim {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0.25);
 }
 
 .mobile-works-cta {
@@ -371,88 +292,6 @@ body.home-mode {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
-}
-
-.video-fallback {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-  --spotlight-radius: 150px;
-  --spotlight-solid: 120px;
-  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
-  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
-  opacity: 1;
-  transition:
-    opacity 500ms ease,
-    --spotlight-radius 800ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    --spotlight-solid 800ms cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.video-fallback.hidden {
-  opacity: 0;
-}
-
-/* 基础点亮范围 */
-.video-bg.full-illumination,
-.video-fallback.full-illumination {
-  --spotlight-radius: 150vmax;
-  --spotlight-solid: 150vmax;
-}
-
-/* 效果1：涟漪扩张（带有微弹跳感） */
-.video-bg.full-illumination.effect-ripple,
-.video-fallback.full-illumination.effect-ripple {
-  transition: none; /* 禁用基础的 transition，由动画完全接管扩张过程 */
-  animation: ripple-expand 1.8s ease-in-out forwards;
-}
-
-@keyframes ripple-expand {
-  0% {
-    --spotlight-radius: 150px;
-    --spotlight-solid: 120px;
-  }
-  30% {
-    --spotlight-radius: 40vmax;
-    --spotlight-solid: 30vmax;
-  }
-  45% {
-    --spotlight-radius: 35vmax;
-    --spotlight-solid: 25vmax;
-  }
-  100% {
-    --spotlight-radius: 150vmax;
-    --spotlight-solid: 150vmax;
-  }
-}
-
-/* 效果2：电影级缓慢淡入（深邃优雅） */
-.video-bg.full-illumination.effect-cinematic,
-.video-fallback.full-illumination.effect-cinematic {
-  transition: --spotlight-radius 1200ms cubic-bezier(0.65, 0, 0.35, 1), 
-              --spotlight-solid 1200ms cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-/* 效果3：瞬间爆发（如同闪电/快门） */
-.video-bg.full-illumination.effect-burst,
-.video-fallback.full-illumination.effect-burst {
-  transition: --spotlight-radius 250ms cubic-bezier(0.1, 0.9, 0.2, 1), 
-              --spotlight-solid 250ms cubic-bezier(0.1, 0.9, 0.2, 1);
-}
-
-/* 为了让 CSS 自定义属性能被 transition，需要声明它们的类型 */
-@property --spotlight-radius {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 150px;
-}
-@property --spotlight-solid {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 120px;
 }
 
 .home-logo .brand-mark {
