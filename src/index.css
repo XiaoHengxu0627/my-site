@@ -984,15 +984,49 @@ body.home-mode {
 }
 
 .product-tooltip-image {
+  position: relative;
   width: 100%;
   height: 140px;
   background: #f4f4f4;
 }
 
 .product-tooltip-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.product-tooltip-image img.active {
+  opacity: 1;
+}
+
+.product-tooltip-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.product-tooltip-dots .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 300ms ease;
+}
+
+.product-tooltip-dots .dot.active {
+  background: #ffffff;
+  width: 10px;
+  border-radius: 2px;
 }
 
 .product-tooltip-text {

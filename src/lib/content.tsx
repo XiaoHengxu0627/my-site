@@ -24,7 +24,7 @@ export type SocialLink = {
 export type ProductDetails = {
   name: LocalizedString
   info: LocalizedString
-  image?: string
+  images?: string[]
 }
 
 export type ResumeEntry = {
@@ -124,7 +124,7 @@ type CmsSite = {
         nameEn: string
         infoZh: string
         infoEn: string
-        image?: string
+        images?: string[]
       }
       bulletsZh?: string[]
       bulletsEn?: string[]
@@ -246,7 +246,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
                   productDetails: it.productDetails ? {
                     name: { zh: it.productDetails.nameZh, en: it.productDetails.nameEn },
                     info: { zh: it.productDetails.infoZh, en: it.productDetails.infoEn },
-                    image: withBaseIfRelative(it.productDetails.image)
+                    images: it.productDetails.images?.map(img => withBaseIfRelative(img)).filter((img): img is string => !!img)
                   } : undefined,
                   bullets: zipLocalizedArray(it.bulletsZh, it.bulletsEn),
                 })),

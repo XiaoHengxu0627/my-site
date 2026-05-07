@@ -46,7 +46,7 @@
             "nameEn": "Smart Merchant Assistant",
             "infoZh": "美团面向餐饮商家打造的 AI 经营助手。通过对话式交互提供经营分析、评价管理、营销建议等核心能力，帮助商家降低数字化经营门槛，实现降本增效。",
             "infoEn": "An AI-powered business assistant for Meituan merchants. It provides core capabilities like operational analysis, review management, and marketing suggestions through conversational interaction.",
-            "image": "/media/meituan-assistant.jpg"
+            "images": ["/media/Merchant1.jpg", "/media/Merchant2.jpg"]
           },
           "bulletsZh": [
             "付费链路重构：将付费购买权限扩展至管理员账号，降低商家对超管账号的付费依赖；同步设计多类账号购买链路与开票规则，解决订单归属、续费判断等数据隔离问题；上线一周付费率+0.24pp；付费门店数+278.45%；收入金额+224.14%。",

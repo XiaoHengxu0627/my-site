@@ -1,21 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useContent } from '../lib/content'
 
 type TooltipProps = {
   details: {
     name: string
     info: string
-    image?: string
+    images?: string[]
   }
 }
 
 function ProductTooltip({ details }: TooltipProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  useEffect(() => {
+    if (!details.images || details.images.length <= 1) return
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % details.images!.length)
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [details.images])
+
   return (
     <div className="product-tooltip">
       <div className="product-tooltip-content">
-        {details.image && (
+        {details.images && details.images.length > 0 && (
           <div className="product-tooltip-image">
-            <img src={details.image} alt={details.name} />
+            {details.images.map((img, idx) => (
+              <img
+                key={img}
+                src={img}
+                alt={`${details.name} ${idx + 1}`}
+                className={idx === currentImageIndex ? 'active' : ''}
+              />
+            ))}
+            {details.images.length > 1 && (
+              <div className="product-tooltip-dots">
+                {details.images.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`dot ${idx === currentImageIndex ? 'active' : ''}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
         <div className="product-tooltip-text">
@@ -61,7 +90,7 @@ export default function About() {
                     details={{
                       name: productName,
                       info: content.t(details.info),
-                      image: details.image,
+                      images: details.images,
                     }}
                   />
                 )}
