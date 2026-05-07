@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 type Particle = {
   x: number
@@ -541,6 +542,18 @@ export default function ParticleText({ text }: { text: string }) {
 
   const showLoading = !isFullyLoaded && !forceHideLoading
 
+  const loadingOverlay = createPortal(
+    <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
+      <div className="lusion-loader-container">
+        <div className="lusion-loader"></div>
+        <div className="lusion-progress">
+          {Math.floor(progress).toString().padStart(2, '0')}%
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+
   return (
     <div
       ref={containerRef}
@@ -555,14 +568,7 @@ export default function ParticleText({ text }: { text: string }) {
         pointerEvents: 'auto',
       }}
     >
-      <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
-        <div className="lusion-loader-container">
-          <div className="lusion-loader"></div>
-          <div className="lusion-progress">
-            {Math.floor(progress).toString().padStart(2, '0')}%
-          </div>
-        </div>
-      </div>
+      {loadingOverlay}
       <video
         ref={videoRef}
         className="video-bg"
