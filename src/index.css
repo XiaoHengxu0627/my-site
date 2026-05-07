@@ -500,6 +500,17 @@ body.home-mode {
   pointer-events: none;
 }
 
+@media (min-width: 769px) {
+  .brand-hidden {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .header-title {
+    display: none;
+  }
+}
+
 .brand-mark {
   font-size: 18px;
   line-height: 1;
