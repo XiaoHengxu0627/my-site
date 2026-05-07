@@ -73,12 +73,294 @@ function playEtherealNote() {
   osc.stop(now + 3)
 }
 
+type GifFrame = {
+  left: number
+  top: number
+  width: number
+  height: number
+  delayMs: number
+  disposal: number
+  rgba: Uint8ClampedArray
+}
+
+function concatSubBlocks(bytes: Uint8Array, start: number) {
+  let p = start
+  const chunks: Uint8Array[] = []
+  let total = 0
+  while (p < bytes.length) {
+    const size = bytes[p++]
+    if (size === 0) break
+    const chunk = bytes.slice(p, p + size)
+    chunks.push(chunk)
+    total += chunk.length
+    p += size
+  }
+  const out = new Uint8Array(total)
+  let offset = 0
+  for (const c of chunks) {
+    out.set(c, offset)
+    offset += c.length
+  }
+  return { data: out, next: p }
+}
+
+function deinterlace(pixels: Uint8Array, width: number, height: number) {
+  const out = new Uint8Array(width * height)
+  let offset = 0
+  const passes = [
+    { start: 0, step: 8 },
+    { start: 4, step: 8 },
+    { start: 2, step: 4 },
+    { start: 1, step: 2 },
+  ]
+  for (const pass of passes) {
+    for (let y = pass.start; y < height; y += pass.step) {
+      out.set(pixels.subarray(offset, offset + width), y * width)
+      offset += width
+    }
+  }
+  return out
+}
+
+function lzwDecode(minCodeSize: number, data: Uint8Array, pixelCount: number) {
+  const clearCode = 1 << minCodeSize
+  const endCode = clearCode + 1
+  let codeSize = minCodeSize + 1
+  let codeMask = (1 << codeSize) - 1
+
+  const prefix = new Int32Array(4096)
+  const suffix = new Int32Array(4096)
+  const pixelStack = new Int32Array(4097)
+
+  for (let i = 0; i < clearCode; i++) {
+    prefix[i] = 0
+    suffix[i] = i
+  }
+
+  let datum = 0
+  let bits = 0
+  let dataPos = 0
+  let first = 0
+  let top = 0
+  let pi = 0
+  let avail = clearCode + 2
+  let oldCode = -1
+
+  const out = new Uint8Array(pixelCount)
+
+  while (pi < pixelCount) {
+    if (top === 0) {
+      while (bits < codeSize) {
+        if (dataPos >= data.length) {
+          return out
+        }
+        datum |= data[dataPos] << bits
+        bits += 8
+        dataPos += 1
+      }
+
+      let code = datum & codeMask
+      datum >>= codeSize
+      bits -= codeSize
+
+      if (code === clearCode) {
+        codeSize = minCodeSize + 1
+        codeMask = (1 << codeSize) - 1
+        avail = clearCode + 2
+        oldCode = -1
+        continue
+      }
+
+      if (code === endCode) {
+        break
+      }
+
+      if (oldCode === -1) {
+        out[pi++] = suffix[code]
+        oldCode = code
+        first = code
+        continue
+      }
+
+      let inCode = code
+      if (code >= avail) {
+        pixelStack[top++] = first
+        code = oldCode
+      }
+
+      while (code >= clearCode) {
+        pixelStack[top++] = suffix[code]
+        code = prefix[code]
+      }
+
+      first = suffix[code]
+      pixelStack[top++] = first
+
+      if (avail < 4096) {
+        prefix[avail] = oldCode
+        suffix[avail] = first
+        avail += 1
+
+        if (avail === (1 << codeSize) && codeSize < 12) {
+          codeSize += 1
+          codeMask = (1 << codeSize) - 1
+        }
+      }
+
+      oldCode = inCode
+    }
+
+    top -= 1
+    out[pi++] = pixelStack[top]
+  }
+
+  return out
+}
+
+function parseGif(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer)
+  let p = 0
+
+  const header = String.fromCharCode(
+    bytes[0],
+    bytes[1],
+    bytes[2],
+    bytes[3],
+    bytes[4],
+    bytes[5],
+  )
+  if (header !== 'GIF87a' && header !== 'GIF89a') {
+    throw new Error('Not a GIF')
+  }
+  p = 6
+
+  const readU16 = () => {
+    const v = bytes[p] | (bytes[p + 1] << 8)
+    p += 2
+    return v
+  }
+
+  const width = readU16()
+  const height = readU16()
+  const packed = bytes[p++]
+  const gctFlag = (packed & 0x80) !== 0
+  const gctSize = 3 * (1 << ((packed & 0x07) + 1))
+  p += 2
+
+  let gct: Uint8Array | null = null
+  if (gctFlag) {
+    gct = bytes.slice(p, p + gctSize)
+    p += gctSize
+  }
+
+  let gceDisposal = 0
+  let gceDelay = 10
+  let gceTransparent: number | null = null
+
+  const frames: GifFrame[] = []
+  let loopCount: number | null = null
+
+  while (p < bytes.length) {
+    const block = bytes[p++]
+    if (block === 0x3b) break
+
+    if (block === 0x21) {
+      const label = bytes[p++]
+      if (label === 0xf9) {
+        p += 1
+        const gp = bytes[p++]
+        gceDisposal = (gp >> 2) & 0x07
+        const transparentFlag = (gp & 0x01) !== 0
+        const delay = readU16()
+        const tIndex = bytes[p++]
+        p += 1
+        gceDelay = delay === 0 ? 10 : delay
+        gceTransparent = transparentFlag ? tIndex : null
+        continue
+      }
+
+      if (label === 0xff) {
+        const size = bytes[p++]
+        const app = String.fromCharCode(...bytes.slice(p, p + size))
+        p += size
+        const sub = concatSubBlocks(bytes, p)
+        p = sub.next
+        if (app.startsWith('NETSCAPE') && sub.data.length >= 3 && sub.data[0] === 1) {
+          loopCount = sub.data[1] | (sub.data[2] << 8)
+        }
+        continue
+      }
+
+      const sub = concatSubBlocks(bytes, p)
+      p = sub.next
+      continue
+    }
+
+    if (block === 0x2c) {
+      const left = readU16()
+      const top = readU16()
+      const w = readU16()
+      const h = readU16()
+      const ip = bytes[p++]
+      const lctFlag = (ip & 0x80) !== 0
+      const interlace = (ip & 0x40) !== 0
+      const lctSize = 3 * (1 << ((ip & 0x07) + 1))
+      let lct: Uint8Array | null = null
+      if (lctFlag) {
+        lct = bytes.slice(p, p + lctSize)
+        p += lctSize
+      }
+      const lzwMin = bytes[p++]
+      const sub = concatSubBlocks(bytes, p)
+      p = sub.next
+
+      const indicesRaw = lzwDecode(lzwMin, sub.data, w * h)
+      const indices = interlace ? deinterlace(indicesRaw, w, h) : indicesRaw
+      const table = lct || gct
+      if (!table) throw new Error('No color table')
+
+      const rgba = new Uint8ClampedArray(w * h * 4)
+      for (let i = 0; i < w * h; i++) {
+        const idx = indices[i]
+        const di = i * 4
+        if (gceTransparent !== null && idx === gceTransparent) {
+          rgba[di + 3] = 0
+          continue
+        }
+        const ti = idx * 3
+        rgba[di] = table[ti]
+        rgba[di + 1] = table[ti + 1]
+        rgba[di + 2] = table[ti + 2]
+        rgba[di + 3] = 255
+      }
+
+      frames.push({
+        left,
+        top,
+        width: w,
+        height: h,
+        delayMs: Math.max(30, gceDelay * 10),
+        disposal: gceDisposal,
+        rgba,
+      })
+
+      gceDisposal = 0
+      gceDelay = 10
+      gceTransparent = null
+      continue
+    }
+  }
+
+  return { width, height, frames, loopCount }
+}
+
 export default function ParticleText({ text }: { text: string }) {
   const computeIsMobile = () =>
     window.innerWidth <= 860 ||
     (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mobileGifCanvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const fallbackRef = useRef<HTMLImageElement>(null)
@@ -96,7 +378,17 @@ export default function ParticleText({ text }: { text: string }) {
   const [isMobile, setIsMobile] = useState(computeIsMobile)
   const [mobileGifReady, setMobileGifReady] = useState(false)
   const [showMobileWorksCta, setShowMobileWorksCta] = useState(false)
-  const [mobileForceVideo, setMobileForceVideo] = useState(false)
+  const [mobileGifCanvasActive, setMobileGifCanvasActive] = useState(false)
+
+  const { videoSrc, gifSrc, posterSrc } = useMemo(() => {
+    const base = import.meta.env.BASE_URL || '/'
+    const baseNormalized = base.endsWith('/') ? base : `${base}/`
+    return {
+      videoSrc: `${baseNormalized}media/video.mp4`,
+      gifSrc: `${baseNormalized}media/APP.GIF`,
+      posterSrc: `${baseNormalized}media/1.png`,
+    }
+  }, [])
 
   useEffect(() => {
     const handleResize = () => setIsMobile(computeIsMobile())
@@ -111,78 +403,136 @@ export default function ParticleText({ text }: { text: string }) {
     setMobileGifReady(false)
     setVideoFailed(false)
     setShowMobileWorksCta(false)
-    setMobileForceVideo(false)
+    setMobileGifCanvasActive(false)
   }, [isMobile])
 
   useEffect(() => {
-    if (!isMobile || !mobileGifReady) return
-    const loopMs = 1200
-    const t = window.setTimeout(() => setShowMobileWorksCta(true), loopMs * 3)
-    return () => window.clearTimeout(t)
-  }, [isMobile, mobileGifReady])
-
-  useEffect(() => {
-    if (!isMobile || !mobileGifReady) return
-    const img = fallbackRef.current
-    if (!img) return
+    if (!isMobile) return
+    const display = mobileGifCanvasRef.current
+    if (!display) return
 
     let cancelled = false
-    const canvas = document.createElement('canvas')
-    canvas.width = 24
-    canvas.height = 24
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (!ctx) return
+    let raf = 0
+    let timer = 0
+    let loops = 0
 
-    const sample = () => {
-      try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
-        let sum = 0
-        for (let i = 0; i < data.length; i += 20) sum = (sum + data[i]) % 1000000007
-        return sum
-      } catch {
-        return null
-      }
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1))
+    const resizeDisplay = () => {
+      const w = Math.floor(window.innerWidth * dpr)
+      const h = Math.floor(window.innerHeight * dpr)
+      if (display.width !== w) display.width = w
+      if (display.height !== h) display.height = h
+      display.style.width = `${window.innerWidth}px`
+      display.style.height = `${window.innerHeight}px`
     }
 
-    const first = sample()
-    if (first === null) return
+    resizeDisplay()
+    const onResize = () => resizeDisplay()
+    window.addEventListener('resize', onResize)
 
-    let prev = first
-    let ticks = 0
-    let changed = false
+    ;(async () => {
+      try {
+        const res = await fetch(gifSrc, { cache: 'reload' })
+        const buf = await res.arrayBuffer()
+        const parsed = parseGif(buf)
+        if (cancelled || parsed.frames.length === 0) return
 
-    const interval = window.setInterval(() => {
-      if (cancelled) return
-      const next = sample()
-      ticks += 1
-      if (next === null) {
-        window.clearInterval(interval)
-        return
+        const off = document.createElement('canvas')
+        off.width = parsed.width
+        off.height = parsed.height
+        const offCtx = off.getContext('2d', { willReadFrequently: true })
+        const outCtx = display.getContext('2d')
+        if (!offCtx || !outCtx) return
+
+        const applyCoverDraw = () => {
+          const vw = window.innerWidth
+          const vh = window.innerHeight
+          const scale = Math.max(vw / parsed.width, vh / parsed.height)
+          const dw = parsed.width * scale
+          const dh = parsed.height * scale
+          const dx = (vw - dw) / 2
+          const dy = (vh - dh) / 2
+
+          outCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
+          outCtx.clearRect(0, 0, vw, vh)
+          outCtx.drawImage(off, dx, dy, dw, dh)
+        }
+
+        let frameIndex = 0
+        let pendingClear: { left: number; top: number; width: number; height: number } | null = null
+        let pendingRestore:
+          | { data: ImageData; left: number; top: number }
+          | null = null
+
+        const step = () => {
+          if (cancelled) return
+
+          if (pendingRestore) {
+            offCtx.putImageData(pendingRestore.data, pendingRestore.left, pendingRestore.top)
+            pendingRestore = null
+          } else if (pendingClear) {
+            offCtx.clearRect(
+              pendingClear.left,
+              pendingClear.top,
+              pendingClear.width,
+              pendingClear.height,
+            )
+            pendingClear = null
+          }
+
+          const frame = parsed.frames[frameIndex]
+
+          if (frame.disposal === 3) {
+            try {
+              const under = offCtx.getImageData(frame.left, frame.top, frame.width, frame.height)
+              pendingRestore = { data: under, left: frame.left, top: frame.top }
+            } catch {
+              pendingRestore = null
+            }
+          } else if (frame.disposal === 2) {
+            pendingClear = {
+              left: frame.left,
+              top: frame.top,
+              width: frame.width,
+              height: frame.height,
+            }
+          }
+
+          const imgData = offCtx.createImageData(frame.width, frame.height)
+          imgData.data.set(frame.rgba)
+          offCtx.putImageData(imgData, frame.left, frame.top)
+
+          applyCoverDraw()
+
+          setMobileGifReady(true)
+          setMobileGifCanvasActive(true)
+
+          const delay = frame.delayMs
+          frameIndex += 1
+          if (frameIndex >= parsed.frames.length) {
+            frameIndex = 0
+            loops += 1
+            if (loops >= 3) setShowMobileWorksCta(true)
+          }
+
+          timer = window.setTimeout(step, delay)
+        }
+
+        raf = window.requestAnimationFrame(step)
+      } catch {
+        if (!cancelled) {
+          setMobileGifCanvasActive(false)
+        }
       }
-      if (next !== prev) {
-        changed = true
-        window.clearInterval(interval)
-        return
-      }
-      prev = next
-      if (ticks >= 10) {
-        window.clearInterval(interval)
-        if (!changed) setMobileForceVideo(true)
-      }
-    }, 180)
+    })()
 
     return () => {
       cancelled = true
-      window.clearInterval(interval)
+      window.removeEventListener('resize', onResize)
+      if (raf) window.cancelAnimationFrame(raf)
+      if (timer) window.clearTimeout(timer)
     }
-  }, [isMobile, mobileGifReady])
-
-  useEffect(() => {
-    if (!isMobile || !mobileForceVideo) return
-    videoRef.current?.play().catch(() => {})
-  }, [isMobile, mobileForceVideo])
+  }, [gifSrc, isMobile])
 
   useEffect(() => {
     if (!isMobile) return
@@ -191,17 +541,6 @@ export default function ParticleText({ text }: { text: string }) {
       el.classList.remove('full-illumination', 'effect-ripple', 'effect-cinematic', 'effect-burst')
     })
   }, [isMobile])
-
-  const { videoSrc, mobileVideoSrc, gifSrc, posterSrc } = useMemo(() => {
-    const base = import.meta.env.BASE_URL || '/'
-    const baseNormalized = base.endsWith('/') ? base : `${base}/`
-    return {
-      videoSrc: `${baseNormalized}media/video.mp4`,
-      mobileVideoSrc: `${baseNormalized}media/app.mp4`,
-      gifSrc: `${baseNormalized}media/APP.GIF`,
-      posterSrc: `${baseNormalized}media/1.png`,
-    }
-  }, [])
 
   // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
@@ -642,8 +981,7 @@ export default function ParticleText({ text }: { text: string }) {
   }, [text])
 
   const readyToReveal =
-    (isMobile ? mobileGifReady || videoReady || videoFailed : videoReady || (videoFailed && fallbackReady)) &&
-    canvasReady
+    (isMobile ? mobileGifReady : videoReady || (videoFailed && fallbackReady)) && canvasReady
 
   useEffect(() => {
     if (readyToReveal && minLoadingElapsed) {
@@ -684,34 +1022,15 @@ export default function ParticleText({ text }: { text: string }) {
       {loadingOverlay}
       {isMobile ? (
         <>
-          {(() => {
-            const showMobileVideo = videoPlaying || (mobileForceVideo && videoReady)
-            return (
-              <>
+          <canvas ref={mobileGifCanvasRef} className="mobile-gif-canvas" />
           <img
             ref={fallbackRef}
             src={gifSrc}
             alt=""
             aria-hidden="true"
-            className={`mobile-bg${showMobileVideo ? ' hidden' : ''}`}
+            className={`mobile-bg${mobileGifCanvasActive ? ' hidden' : ''}`}
             loading="eager"
             onLoad={() => setMobileGifReady(true)}
-            onError={() => setVideoFailed(true)}
-          />
-          <video
-            ref={videoRef}
-            className={`mobile-video${showMobileVideo ? '' : ' hidden'}`}
-            src={mobileVideoSrc}
-            preload="auto"
-            autoPlay
-            loop
-            muted
-            playsInline
-            onCanPlay={() => setVideoReady(true)}
-            onCanPlayThrough={() => setVideoReady(true)}
-            onPlaying={() => setVideoPlaying(true)}
-            onPause={() => setVideoPlaying(false)}
-            onEnded={() => setVideoPlaying(false)}
             onError={() => setVideoFailed(true)}
           />
           <div className="mobile-bg-dim" aria-hidden="true" />
@@ -737,9 +1056,6 @@ export default function ParticleText({ text }: { text: string }) {
               />
             </svg>
           </button>
-              </>
-            )
-          })()}
         </>
       ) : (
         <>
