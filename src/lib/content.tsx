@@ -21,11 +21,18 @@ export type SocialLink = {
   href: string
 }
 
+export type ProductDetails = {
+  name: LocalizedString
+  info: LocalizedString
+  image?: string
+}
+
 export type ResumeEntry = {
   dept?: LocalizedString
   title: LocalizedString
   time?: LocalizedString
   description?: LocalizedString
+  productDetails?: ProductDetails
   bullets?: LocalizedString[]
 }
 
@@ -112,6 +119,13 @@ type CmsSite = {
       timeEn?: string
       descZh?: string
       descEn?: string
+      productDetails?: {
+        nameZh: string
+        nameEn: string
+        infoZh: string
+        infoEn: string
+        image?: string
+      }
       bulletsZh?: string[]
       bulletsEn?: string[]
     }[]
@@ -229,6 +243,11 @@ export function ContentProvider({ children }: { children: ReactNode }) {
                   title: { zh: it.titleZh, en: it.titleEn },
                   time: toLocalized(it.timeZh, it.timeEn),
                   description: toLocalized(it.descZh, it.descEn),
+                  productDetails: it.productDetails ? {
+                    name: { zh: it.productDetails.nameZh, en: it.productDetails.nameEn },
+                    info: { zh: it.productDetails.infoZh, en: it.productDetails.infoEn },
+                    image: withBaseIfRelative(it.productDetails.image)
+                  } : undefined,
                   bullets: zipLocalizedArray(it.bulletsZh, it.bulletsEn),
                 })),
               })),

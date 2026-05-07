@@ -41,6 +41,13 @@
           "timeEn": "Dec 2025 - Apr 2026",
           "descZh": "业务介绍：强化智能掌柜的 AI 能力与商家基础体验迭代，提升价值感知，驱动付费转化与续费增长，提高商业化变现效率。",
           "descEn": "Scope: Strengthen AI capabilities of the merchant assistant and iterate core merchant experience to improve value perception, drive paid conversion and renewal, and increase monetization efficiency.",
+          "productDetails": {
+            "nameZh": "智能掌柜",
+            "nameEn": "Smart Merchant Assistant",
+            "infoZh": "美团面向餐饮商家打造的 AI 经营助手。通过对话式交互提供经营分析、评价管理、营销建议等核心能力，帮助商家降低数字化经营门槛，实现降本增效。",
+            "infoEn": "An AI-powered business assistant for Meituan merchants. It provides core capabilities like operational analysis, review management, and marketing suggestions through conversational interaction.",
+            "image": "/media/meituan-assistant.jpg"
+          },
           "bulletsZh": [
             "付费链路重构：将付费购买权限扩展至管理员账号，降低商家对超管账号的付费依赖；同步设计多类账号购买链路与开票规则，解决订单归属、续费判断等数据隔离问题；上线一周付费率+0.24pp；付费门店数+278.45%；收入金额+224.14%。",
             "掌柜会话页改版：针对商家提问门槛高/付费点深的问题，主导会话页改版，前置展示核心付费能力并新增推荐问；设计 AB 实验验证改版：CTR+2.11pp，主动提问商家数+2370，提问转化+4.56pp；上线后三项能力付费门店数+76.67%/+68.57%/+1628.57%。",
@@ -63,6 +70,13 @@
           "timeEn": "Mar 2025 - Dec 2025",
           "descZh": "业务介绍：聚焦整车数据看板分散、取数依赖人工、碰撞分析低效核心痛点，搭建数据门户并通过 AI 驱动数据消费与安全运营提效。",
           "descEn": "Scope: Built a data portal to solve fragmented dashboards, manual data access, and inefficient crash analysis; improved data consumption and safety operations with AI.",
+          "productDetails": {
+            "nameZh": "整车大数据门户",
+            "nameEn": "Vehicle Big Data Portal",
+            "infoZh": "小米汽车内部核心数据中台。集成了整车生产、路测、安全等多维度数据，提供自动化报表、事故深度分析及 AI 智能问数功能，支撑跨部门高效数据决策。",
+            "infoEn": "Xiaomi Auto's core internal data platform. It integrates multi-dimensional data from production, testing, and safety, providing automated reports and AI-driven data insights.",
+            "image": "/media/xiaomi-data.jpg"
+          },
           "bulletsZh": [
             "数据门户搭建：主导跨业务线统一数据口径，将 40+ 分散看板收敛为 9 大专题 38 项核心看板，设计权限体系并搭建权限服务，全栈推进产品落地（独立完成前端开发/接口联调）；上线后覆盖部门 87% 成员（120+ 用户），周均使用 320+ 次，成为核心数据工具。",
             "ChatBI 模块：对标瓴羊、网易有数等行业标杆，围绕问数/报告/解读三大场景设计 ChatBI 功能方案；主导数据源清洗与字段语义映射，支撑 RAG 语义召回准确率达 92%；上线后非技术人员取数占比提升至 70%，需求响应从 3 天压缩至实时。",
@@ -85,6 +99,13 @@
           "timeEn": "Sep 2024 - Dec 2024",
           "descZh": "业务介绍：聚焦平板端游戏体验短板，以键鼠映射功能为核心抓手，补齐与 PC 端操控精度差距，驱动游戏助手核心用户留存增长。",
           "descEn": "Scope: Improved tablet gaming experience via key-mouse mapping to close the control-precision gap vs. PC and grow retention for the game assistant’s core users.",
+          "productDetails": {
+            "nameZh": "游戏助手",
+            "nameEn": "Game Assistant",
+            "infoZh": "OPPO 平板端的系统级游戏增强工具。提供高性能模式、键鼠映射、AI 大神辅助等功能，旨在提升移动端游戏的操控精度与沉浸感。",
+            "infoEn": "OPPO's system-level game enhancement tool for tablets. It offers high-performance modes, key-mouse mapping, and AI-powered game assistance to improve control and immersion.",
+            "image": "/media/oppo-assistant.jpg"
+          },
           "bulletsZh": [
             "键鼠映射：整合 2000+ 条用户反馈与埋点数据交叉分析，定位误触率高、精准度低、多指协同难三大核心痛点；完成 4 款头部竞品功能对标，独立负责需求拆解与全链路交互逻辑设计；设计 20+ 核心埋点，构建用户行为数据反馈闭环，支撑后续迭代决策。",
             "游戏助手体验：主导 AI 大神辅助模块新增 AI 能力，覆盖胜率预测、弹幕辅助、语音辅助三项核心能力，功能使用率提升 6.29%，深度使用率提升 3.87%；基于用户原声提炼需求，推动小游戏模块纳入游戏空间统一承载，上线后相关负面反馈降至近零。",

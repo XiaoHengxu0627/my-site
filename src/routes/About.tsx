@@ -1,12 +1,73 @@
+import { useState } from 'react'
 import { useContent } from '../lib/content'
+
+type TooltipProps = {
+  details: {
+    name: string
+    info: string
+    image?: string
+  }
+}
+
+function ProductTooltip({ details }: TooltipProps) {
+  return (
+    <div className="product-tooltip">
+      <div className="product-tooltip-content">
+        {details.image && (
+          <div className="product-tooltip-image">
+            <img src={details.image} alt={details.name} />
+          </div>
+        )}
+        <div className="product-tooltip-text">
+          <div className="product-tooltip-name">{details.name}</div>
+          <div className="product-tooltip-info">{details.info}</div>
+        </div>
+      </div>
+      <div className="product-tooltip-arrow" />
+    </div>
+  )
+}
 
 export default function About() {
   const content = useContent()
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+
   if (content.status !== 'ready') return null
 
   const page = content.site.pages.about
   const heading = content.t(page.heading) || content.t(page.title)
   const photo = page.photo || '/media/xiaohengxu.jpg'
+
+  const renderDescription = (text: string, details?: any, itemId?: string) => {
+    if (!details || !text.includes(content.t(details.name))) return text
+
+    const productName = content.t(details.name)
+    const parts = text.split(productName)
+
+    return (
+      <>
+        {parts[0]}
+        <span
+          className="product-highlight"
+          onMouseEnter={() => setActiveTooltip(itemId || '')}
+          onMouseLeave={() => setActiveTooltip(null)}
+        >
+          {productName}
+          {activeTooltip === itemId && (
+            <ProductTooltip
+              details={{
+                name: productName,
+                info: content.t(details.info),
+                image: details.image,
+              }}
+            />
+          )}
+        </span>
+        {parts[1]}
+      </>
+    )
+  }
+
   return (
     <div className="container resume">
       <div className="resume-hero">
@@ -31,35 +92,50 @@ export default function About() {
         >
           <div className="resume-section-title">{content.t(section.title)}</div>
           <div className="resume-items">
-            {section.items.map((item, idx) => (
-              <div className="resume-item" key={`${content.t(item.title)}-${idx}`}>
-                <div className="resume-item-head">
-                  <div className="resume-item-title-group">
-                    {item.dept ? (
-                      <div className="resume-item-dept">{content.t(item.dept)}</div>
+            {section.items.map((item, idx) => {
+              const itemId = `${content.t(section.title)}-${idx}`
+              return (
+                <div className="resume-item" key={itemId}>
+                  <div className="resume-item-head">
+                    <div className="resume-item-title-group">
+                      {item.dept ? (
+                        <div className="resume-item-dept">
+                          {content.t(item.dept)}
+                        </div>
+                      ) : null}
+                      <div className="resume-item-title">
+                        {content.t(item.title)}
+                      </div>
+                    </div>
+                    {item.time ? (
+                      <div className="resume-item-time">
+                        {content.t(item.time)}
+                      </div>
                     ) : null}
-                    <div className="resume-item-title">{content.t(item.title)}</div>
                   </div>
-                  {item.time ? (
-                    <div className="resume-item-time">{content.t(item.time)}</div>
+                  {item.description ? (
+                    <div className="resume-item-desc">
+                      {renderDescription(
+                        content.t(item.description),
+                        item.productDetails,
+                        itemId,
+                      )}
+                    </div>
+                  ) : null}
+                  {item.bullets && item.bullets.length > 0 ? (
+                    <ul className="resume-item-bullets">
+                      {item.bullets.map((b, bIdx) =>
+                        content.t(b) ? (
+                          <li key={`${bIdx}-${content.t(b)}`}>
+                            {content.t(b)}
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
                   ) : null}
                 </div>
-                {item.description ? (
-                  <div className="resume-item-desc">
-                    {content.t(item.description)}
-                  </div>
-                ) : null}
-                {item.bullets && item.bullets.length > 0 ? (
-                  <ul className="resume-item-bullets">
-                    {item.bullets.map((b, bIdx) =>
-                      content.t(b) ? (
-                        <li key={`${bIdx}-${content.t(b)}`}>{content.t(b)}</li>
-                      ) : null,
-                    )}
-                  </ul>
-                ) : null}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       ))}
