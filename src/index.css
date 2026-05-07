@@ -128,12 +128,68 @@ video {
   color: rgba(255, 255, 255, 0.85); /* 灰白色 */
 }
 
+.home-mode {
+  --home-scroll: 0;
+}
+
+.home-scroll-spacer {
+  height: 220vh;
+  height: 220svh;
+}
+
+.home-mode .site-header {
+  transition:
+    background 420ms ease,
+    backdrop-filter 420ms ease,
+    border-color 420ms ease,
+    box-shadow 420ms ease;
+}
+
+.home-mode.home-scrolled .site-header {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.home-mode .particle-text {
+  opacity: calc(1 - (var(--home-scroll) * 0.55));
+  transition: opacity 500ms ease;
+}
+
+.home-mode .cursor-hint.visible {
+  opacity: calc(1 - (var(--home-scroll) * 0.85));
+}
+
+.home-mode .video-bg {
+  filter: brightness(calc(0.75 + (var(--home-scroll) * 0.35)))
+    saturate(calc(1 + (var(--home-scroll) * 0.15)));
+  transition: filter 500ms ease;
+}
+
 .home-page {
   position: fixed;
   inset: 0;
   background: #000000;
   display: block;
   overflow: hidden;
+}
+
+.home-mode .home-page {
+  background: radial-gradient(
+    1100px circle at 50% 30%,
+    rgba(255, 255, 255, 0.06),
+    rgba(0, 0, 0, 1) 62%
+  );
+  transition: background 600ms ease;
+}
+
+.home-mode.home-scrolled .home-page {
+  background: radial-gradient(
+    900px circle at 50% 0%,
+    rgba(0, 220, 255, 0.1),
+    rgba(0, 0, 0, 1) 60%
+  );
 }
 
 .video-bg {
@@ -249,7 +305,7 @@ video {
 }
 
 .brand-mark {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
   white-space: nowrap;
 }
@@ -300,8 +356,6 @@ video {
   display: inline-flex;
   align-items: center;
   margin-left: 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
@@ -357,19 +411,28 @@ video {
 
 .works-list {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 56px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  row-gap: 46px;
+}
+
+.project-card-featured {
+  grid-column: 1 / -1;
+}
+
+.project-card-featured .project-media {
+  aspect-ratio: 21 / 9;
 }
 
 
 .project-link {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
+  gap: 14px;
 }
 
 .project-media {
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
   background: #f4f4f4;
 }
@@ -969,6 +1032,19 @@ video {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .works-list {
+    grid-template-columns: 1fr;
+    row-gap: 34px;
+  }
+
+  .project-link {
+    gap: 12px;
+  }
+
+  .project-media {
+    aspect-ratio: 21 / 9;
   }
 
   .lang-switch {

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import type { Project } from '../lib/content'
 import { useContent } from '../lib/content'
+import { cx } from '../lib/cx'
 
 export default function ProjectCard({ project }: { project: Project }) {
   const content = useContent()
@@ -11,7 +12,10 @@ export default function ProjectCard({ project }: { project: Project }) {
 
   return (
     <motion.article
-      className="project-card"
+      className={cx(
+        'project-card',
+        project.slug === 'urban-oasis' && 'project-card-featured',
+      )}
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}

@@ -473,6 +473,7 @@ export default function ParticleText({ text }: { text: string }) {
   return (
     <div
       ref={containerRef}
+      className="particle-text"
       style={{
         position: 'absolute',
         top: 0,
