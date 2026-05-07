@@ -84,6 +84,8 @@ export default function ParticleText({ text }: { text: string }) {
   const [minLoadingElapsed, setMinLoadingElapsed] = useState(false)
   const [progress, setProgress] = useState(0)
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
+  const [videoTimeout, setVideoTimeout] = useState(false)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -97,18 +99,21 @@ export default function ParticleText({ text }: { text: string }) {
   // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
     const t = window.setTimeout(() => setMinLoadingElapsed(true), 1500)
+    // If video takes more than 5 seconds, we give up waiting for it so user isn't stuck
+    const vTimeout = window.setTimeout(() => setVideoTimeout(true), 5000)
     const hardCap = window.setTimeout(() => setForceHideLoading(true), 15000)
     return () => {
       window.clearTimeout(t)
+      window.clearTimeout(vTimeout)
       window.clearTimeout(hardCap)
     }
   }, [])
 
-  // Simulated progress easing over 1.5s
+  // Simulated progress easing over 3s
   useEffect(() => {
     let startTime = performance.now()
     let animationFrame: number
-    const duration = 1500
+    const duration = 3000
 
     const updateProgress = (currentTime: number) => {
       const elapsed = currentTime - startTime
@@ -528,7 +533,7 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [text])
 
-  const readyToReveal = (videoReady || fallbackReady) && canvasReady
+  const readyToReveal = (videoReady || ((videoFailed || videoTimeout) && fallbackReady)) && canvasReady
 
   useEffect(() => {
     if (readyToReveal && minLoadingElapsed) {
@@ -577,6 +582,7 @@ export default function ParticleText({ text }: { text: string }) {
         onPlaying={() => setVideoPlaying(true)}
         onPause={() => setVideoPlaying(false)}
         onEnded={() => setVideoPlaying(false)}
+        onError={() => setVideoFailed(true)}
       />
       <img
         ref={fallbackRef}
