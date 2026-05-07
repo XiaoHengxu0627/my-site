@@ -89,8 +89,8 @@ video {
   backdrop-filter: none;
 }
 
-.home-mode .menu-toggle-bar {
-  background: #ffffff;
+.home-mode .menu-toggle {
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .home-mode .nav-link {
@@ -424,6 +424,13 @@ video {
   background: transparent;
   padding: 8px;
   cursor: pointer;
+  color: #8493b2;
+}
+
+.menu-toggle-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .menu-toggle-bar {
@@ -1170,7 +1177,10 @@ video {
   }
 
   .brand-mark {
-    font-size: 24px;
+    font-size: 36px;
     line-height: 1;
+    display: inline-block;
+    transform: scale(0.5);
+    transform-origin: left center;
   }
 }
