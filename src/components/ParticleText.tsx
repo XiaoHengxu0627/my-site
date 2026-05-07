@@ -601,17 +601,19 @@ export default function ParticleText({ text }: { text: string }) {
     >
       {loadingOverlay}
       {isMobile ? (
-        <img
-          ref={fallbackRef}
-          src={gifSrc}
-          alt=""
-          aria-hidden="true"
-          className="mobile-bg"
-          decoding="async"
-          loading="eager"
-          onLoad={() => setFallbackReady(true)}
-          onError={() => setVideoFailed(true)}
-        />
+        <>
+          <img
+            ref={fallbackRef}
+            src={gifSrc}
+            alt=""
+            aria-hidden="true"
+            className="mobile-bg"
+            loading="eager"
+            onLoad={() => setFallbackReady(true)}
+            onError={() => setVideoFailed(true)}
+          />
+          <div className="mobile-bg-dim" aria-hidden="true" />
+        </>
       ) : (
         <>
           <video
