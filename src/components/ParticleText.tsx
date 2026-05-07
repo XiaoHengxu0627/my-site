@@ -91,7 +91,7 @@ export default function ParticleText({ text }: { text: string }) {
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
   const [isMobile, setIsMobile] = useState(computeIsMobile)
-  const [useGif, setUseGif] = useState(true)
+  const [mobileGifReady, setMobileGifReady] = useState(false)
 
   useEffect(() => {
     const handleResize = () => setIsMobile(computeIsMobile())
@@ -100,11 +100,12 @@ export default function ParticleText({ text }: { text: string }) {
   }, [])
 
   useEffect(() => {
-    setVideoFailed(isMobile && useGif)
     setVideoReady(false)
     setVideoPlaying(false)
     setFallbackReady(false)
-  }, [isMobile, useGif])
+    setMobileGifReady(false)
+    setVideoFailed(false)
+  }, [isMobile])
 
   useEffect(() => {
     if (!isMobile) return
@@ -113,71 +114,6 @@ export default function ParticleText({ text }: { text: string }) {
       el.classList.remove('full-illumination', 'effect-ripple', 'effect-cinematic', 'effect-burst')
     })
   }, [isMobile])
-
-  useEffect(() => {
-    if (!isMobile || !useGif || !fallbackReady) return
-    const img = fallbackRef.current
-    if (!img) return
-
-    let cancelled = false
-    const canvas = document.createElement('canvas')
-    canvas.width = 24
-    canvas.height = 24
-    const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (!ctx) {
-      setUseGif(false)
-      return
-    }
-
-    const sample = () => {
-      try {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
-        let sum = 0
-        for (let i = 0; i < data.length; i += 20) sum = (sum + data[i]) % 1000000007
-        return sum
-      } catch {
-        return null
-      }
-    }
-
-    const first = sample()
-    if (first === null) {
-      setUseGif(false)
-      return
-    }
-
-    let prev = first
-    let ticks = 0
-    let changed = false
-    const interval = window.setInterval(() => {
-      if (cancelled) return
-      const next = sample()
-      ticks += 1
-      if (next === null) {
-        changed = false
-        window.clearInterval(interval)
-        setUseGif(false)
-        return
-      }
-      if (next !== prev) {
-        changed = true
-        window.clearInterval(interval)
-        return
-      }
-      prev = next
-      if (ticks >= 10) {
-        window.clearInterval(interval)
-        if (!changed) setUseGif(false)
-      }
-    }, 180)
-
-    return () => {
-      cancelled = true
-      window.clearInterval(interval)
-    }
-  }, [isMobile, useGif, fallbackReady])
 
   const { videoSrc, mobileVideoSrc, gifSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -628,7 +564,9 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [text])
 
-  const readyToReveal = (videoReady || (videoFailed && fallbackReady)) && canvasReady
+  const readyToReveal =
+    (isMobile ? mobileGifReady || videoReady || videoFailed : videoReady || (videoFailed && fallbackReady)) &&
+    canvasReady
 
   useEffect(() => {
     if (readyToReveal && minLoadingElapsed) {
@@ -669,41 +607,33 @@ export default function ParticleText({ text }: { text: string }) {
       {loadingOverlay}
       {isMobile ? (
         <>
-          {useGif ? (
-            <>
-              <img
-                ref={fallbackRef}
-                src={gifSrc}
-                alt=""
-                aria-hidden="true"
-                className="mobile-bg"
-                loading="eager"
-                onLoad={() => setFallbackReady(true)}
-                onError={() => setUseGif(false)}
-              />
-              <div className="mobile-bg-dim" aria-hidden="true" />
-            </>
-          ) : (
-            <>
-              <video
-                ref={videoRef}
-                className="mobile-video"
-                src={mobileVideoSrc}
-                preload="auto"
-                autoPlay
-                loop
-                muted
-                playsInline
-                onCanPlay={() => setVideoReady(true)}
-                onCanPlayThrough={() => setVideoReady(true)}
-                onPlaying={() => setVideoPlaying(true)}
-                onPause={() => setVideoPlaying(false)}
-                onEnded={() => setVideoPlaying(false)}
-                onError={() => setVideoFailed(true)}
-              />
-              <div className="mobile-bg-dim" aria-hidden="true" />
-            </>
-          )}
+          <img
+            ref={fallbackRef}
+            src={gifSrc}
+            alt=""
+            aria-hidden="true"
+            className={`mobile-bg${videoPlaying ? ' hidden' : ''}`}
+            loading="eager"
+            onLoad={() => setMobileGifReady(true)}
+            onError={() => setVideoFailed(true)}
+          />
+          <video
+            ref={videoRef}
+            className={`mobile-video${videoPlaying ? '' : ' hidden'}`}
+            src={mobileVideoSrc}
+            preload="auto"
+            autoPlay
+            loop
+            muted
+            playsInline
+            onCanPlay={() => setVideoReady(true)}
+            onCanPlayThrough={() => setVideoReady(true)}
+            onPlaying={() => setVideoPlaying(true)}
+            onPause={() => setVideoPlaying(false)}
+            onEnded={() => setVideoPlaying(false)}
+            onError={() => setVideoFailed(true)}
+          />
+          <div className="mobile-bg-dim" aria-hidden="true" />
         </>
       ) : (
         <>

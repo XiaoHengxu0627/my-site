@@ -304,6 +304,8 @@ body.home-mode {
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 240ms ease;
 }
 
 .mobile-video {
@@ -314,6 +316,14 @@ body.home-mode {
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
+  opacity: 1;
+  transition: opacity 240ms ease;
+  background: #000;
+}
+
+.mobile-bg.hidden,
+.mobile-video.hidden {
+  opacity: 0;
 }
 
 .mobile-bg-dim {
