@@ -204,11 +204,17 @@ video {
 
 .home-mode {
   --home-scroll: 0;
+  overflow: hidden;
 }
 
-.home-scroll-spacer {
-  height: 220vh;
-  height: 220svh;
+body.home-mode {
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .hidden-on-mobile {
+    display: none !important;
+  }
 }
 
 .home-mode .site-header {

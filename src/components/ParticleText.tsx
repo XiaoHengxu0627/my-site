@@ -86,15 +86,22 @@ export default function ParticleText({ text }: { text: string }) {
   const [progress, setProgress] = useState(0)
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
     const baseNormalized = base.endsWith('/') ? base : `${base}/`
     return {
-      videoSrc: `${baseNormalized}media/video.mp4`,
+      videoSrc: `${baseNormalized}media/${isMobile ? 'app.mp4' : 'video.mp4'}`,
       posterSrc: `${baseNormalized}media/1.png`,
     }
-  }, [])
+  }, [isMobile])
 
   // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
@@ -482,6 +489,11 @@ export default function ParticleText({ text }: { text: string }) {
 
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume()
+      }
+
+      // 移动端的主页不需要点击变亮的交互，直接返回
+      if (window.innerWidth <= 768) {
+        return
       }
 
       const layers = visualLayers()
