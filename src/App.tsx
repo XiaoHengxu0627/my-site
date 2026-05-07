@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { LocaleProvider } from './lib/locale'
+import { GlobalStateProvider } from './lib/globalState'
 
 const Layout = lazy(() => import('./routes/Layout.tsx'))
 const Home = lazy(() => import('./routes/Home.tsx'))
@@ -32,41 +33,43 @@ function ForceRootOnLoad() {
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <LocaleProvider>
-        <ForceRootOnLoad />
-        <Suspense
-          fallback={
-            <main className="container page">
-              <div className="skeleton-block" />
-              <div className="skeleton-block" />
-              <div className="skeleton-block" />
-            </main>
-          }
-        >
-          <Routes>
-            <Route element={<Layout />}>
-              <Route index element={<Navigate to="/home" replace />} />
-              <Route path="home" element={<Home />} />
-              <Route
-                path="digitalart"
-                element={<WorksIndex section="digitalart" />}
-              />
-              <Route
-                path="installation"
-                element={<WorksIndex section="installation" />}
-              />
-              <Route
-                path="performance"
-                element={<WorksIndex section="performance" />}
-              />
-              <Route path="about" element={<About />} />
-              <Route path="contact" element={<Contact />} />
-              <Route path=":slug" element={<ProjectDetail />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </LocaleProvider>
+      <GlobalStateProvider>
+        <LocaleProvider>
+          <ForceRootOnLoad />
+          <Suspense
+            fallback={
+              <main className="container page">
+                <div className="skeleton-block" />
+                <div className="skeleton-block" />
+                <div className="skeleton-block" />
+              </main>
+            }
+          >
+            <Routes>
+              <Route element={<Layout />}>
+                <Route index element={<Navigate to="/home" replace />} />
+                <Route path="home" element={<Home />} />
+                <Route
+                  path="digitalart"
+                  element={<WorksIndex section="digitalart" />}
+                />
+                <Route
+                  path="installation"
+                  element={<WorksIndex section="installation" />}
+                />
+                <Route
+                  path="performance"
+                  element={<WorksIndex section="performance" />}
+                />
+                <Route path="about" element={<About />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path=":slug" element={<ProjectDetail />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </LocaleProvider>
+      </GlobalStateProvider>
     </BrowserRouter>
   )
 }

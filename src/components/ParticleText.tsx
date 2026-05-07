@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useGlobalState } from '../lib/globalState'
 
 type Particle = {
   x: number
@@ -83,6 +84,7 @@ export default function ParticleText({ text }: { text: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const navigate = useNavigate()
   const location = useLocation()
+  const { hasShowedHomeLoading, setHasShowedHomeLoading } = useGlobalState()
   const [videoReady, setVideoReady] = useState(false)
   const [canvasReady, setCanvasReady] = useState(false)
   const [forceHideLoading, setForceHideLoading] = useState(false)
@@ -141,21 +143,30 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [videoReady])
 
-  // Use a simple 1.5s minimum loading time for the new CSS loader
+  // Use a simple 1.0s minimum loading time for the new CSS loader
   useEffect(() => {
-    const t = window.setTimeout(() => setMinLoadingElapsed(true), 1500)
+    if (hasShowedHomeLoading) {
+      setMinLoadingElapsed(true)
+      setIsFullyLoaded(true)
+      return
+    }
+    const t = window.setTimeout(() => setMinLoadingElapsed(true), 1000)
     const hardCap = window.setTimeout(() => setForceHideLoading(true), 30000)
     return () => {
       window.clearTimeout(t)
       window.clearTimeout(hardCap)
     }
-  }, [])
+  }, [hasShowedHomeLoading])
 
-  // Simulated progress easing over 10s
+  // Simulated progress easing over 5s
   useEffect(() => {
+    if (hasShowedHomeLoading) {
+      setProgress(100)
+      return
+    }
     let startTime = performance.now()
     let animationFrame: number
-    const duration = 10000
+    const duration = 5000
 
     const updateProgress = (currentTime: number) => {
       const elapsed = currentTime - startTime
@@ -175,7 +186,7 @@ export default function ParticleText({ text }: { text: string }) {
     
     animationFrame = requestAnimationFrame(updateProgress)
     return () => cancelAnimationFrame(animationFrame)
-  }, [])
+  }, [hasShowedHomeLoading])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -523,12 +534,15 @@ export default function ParticleText({ text }: { text: string }) {
   useEffect(() => {
     if (readyToReveal && minLoadingElapsed) {
       setProgress(100)
-      const t = setTimeout(() => setIsFullyLoaded(true), 400) // Delay to let user see 100%
+      const t = setTimeout(() => {
+        setIsFullyLoaded(true)
+        setHasShowedHomeLoading(true)
+      }, 400) // Delay to let user see 100%
       return () => clearTimeout(t)
     }
-  }, [readyToReveal, minLoadingElapsed])
+  }, [readyToReveal, minLoadingElapsed, setHasShowedHomeLoading])
 
-  const showLoading = !isFullyLoaded && !forceHideLoading
+  const showLoading = !isFullyLoaded && !forceHideLoading && !hasShowedHomeLoading
 
   const loadingOverlay = createPortal(
     <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
