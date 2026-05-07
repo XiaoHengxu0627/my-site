@@ -33,8 +33,10 @@
       "titleEn": "Experience",
       "items": [
         {
-          "titleZh": "美团｜到餐事业部｜商家成长业务｜商家 AI 产品经理",
-          "titleEn": "Meituan | In-Store Dining | Merchant Growth | AI Product Manager",
+          "deptZh": "美团｜到餐事业部｜商家成长业务",
+          "deptEn": "Meituan | In-Store Dining | Merchant Growth",
+          "titleZh": "商家 AI 产品经理",
+          "titleEn": "AI Product Manager",
           "timeZh": "2025年12月 - 2026年04月",
           "timeEn": "Dec 2025 - Apr 2026",
           "descZh": "业务介绍：强化智能掌柜的 AI 能力与商家基础体验迭代，提升价值感知，驱动付费转化与续费增长，提高商业化变现效率。",

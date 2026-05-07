@@ -22,6 +22,7 @@ export type SocialLink = {
 }
 
 export type ResumeEntry = {
+  dept?: LocalizedString
   title: LocalizedString
   time?: LocalizedString
   description?: LocalizedString
@@ -103,6 +104,8 @@ type CmsSite = {
     titleZh: string
     titleEn: string
     items: {
+      deptZh?: string
+      deptEn?: string
       titleZh: string
       titleEn: string
       timeZh?: string
@@ -222,6 +225,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
               resumeSections: cmsSite.resumeSections?.map((s) => ({
                 title: { zh: s.titleZh, en: s.titleEn },
                 items: s.items.map((it) => ({
+                  dept: toLocalized(it.deptZh, it.deptEn),
                   title: { zh: it.titleZh, en: it.titleEn },
                   time: toLocalized(it.timeZh, it.timeEn),
                   description: toLocalized(it.descZh, it.descEn),

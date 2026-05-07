@@ -34,7 +34,12 @@ export default function About() {
             {section.items.map((item, idx) => (
               <div className="resume-item" key={`${content.t(item.title)}-${idx}`}>
                 <div className="resume-item-head">
-                  <div className="resume-item-title">{content.t(item.title)}</div>
+                  <div className="resume-item-title-group">
+                    {item.dept ? (
+                      <div className="resume-item-dept">{content.t(item.dept)}</div>
+                    ) : null}
+                    <div className="resume-item-title">{content.t(item.title)}</div>
+                  </div>
                   {item.time ? (
                     <div className="resume-item-time">{content.t(item.time)}</div>
                   ) : null}

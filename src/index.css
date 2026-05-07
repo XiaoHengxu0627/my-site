@@ -845,7 +845,6 @@ body.home-mode {
 
 .resume-photo {
   width: 240px;
-  border: 1px solid var(--border);
   background: #fff;
   overflow: hidden;
 }
@@ -899,6 +898,20 @@ body.home-mode {
   gap: 18px;
   align-items: baseline;
   flex-wrap: wrap;
+}
+
+.resume-item-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.resume-item-dept {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.1px;
 }
 
 .resume-item-title {
