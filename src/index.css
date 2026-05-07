@@ -161,7 +161,8 @@ video {
   opacity: calc(1 - (var(--home-scroll) * 0.85));
 }
 
-.home-mode .video-bg {
+.home-mode .video-bg,
+.home-mode .video-fallback {
   filter: brightness(calc(0.75 + (var(--home-scroll) * 0.35)))
     saturate(calc(1 + (var(--home-scroll) * 0.15)));
   transition: filter 500ms ease;
@@ -205,8 +206,8 @@ video {
   --spotlight-radius: 150px;
   --spotlight-solid: 120px;
   
-  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
-  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.5) var(--spotlight-radius), rgba(0,0,0,0.5) 100%);
+  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
+  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
   
   transform: translateZ(0);
   will-change: mask-image, -webkit-mask-image;
@@ -223,8 +224,15 @@ video {
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
+  --spotlight-radius: 150px;
+  --spotlight-solid: 120px;
+  -webkit-mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
+  mask-image: radial-gradient(circle var(--spotlight-radius) at var(--mouse-x, 50vw) var(--mouse-y, 50vh), black var(--spotlight-solid), rgba(0,0,0,0.72) var(--spotlight-radius), rgba(0,0,0,0.72) 100%);
   opacity: 1;
-  transition: opacity 500ms ease;
+  transition:
+    opacity 500ms ease,
+    --spotlight-radius 800ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    --spotlight-solid 800ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .video-fallback.hidden {
@@ -232,13 +240,15 @@ video {
 }
 
 /* 基础点亮范围 */
-.video-bg.full-illumination {
+.video-bg.full-illumination,
+.video-fallback.full-illumination {
   --spotlight-radius: 150vmax;
   --spotlight-solid: 150vmax;
 }
 
 /* 效果1：涟漪扩张（带有微弹跳感） */
-.video-bg.full-illumination.effect-ripple {
+.video-bg.full-illumination.effect-ripple,
+.video-fallback.full-illumination.effect-ripple {
   transition: none; /* 禁用基础的 transition，由动画完全接管扩张过程 */
   animation: ripple-expand 1.8s ease-in-out forwards;
 }
@@ -263,13 +273,15 @@ video {
 }
 
 /* 效果2：电影级缓慢淡入（深邃优雅） */
-.video-bg.full-illumination.effect-cinematic {
+.video-bg.full-illumination.effect-cinematic,
+.video-fallback.full-illumination.effect-cinematic {
   transition: --spotlight-radius 1200ms cubic-bezier(0.65, 0, 0.35, 1), 
               --spotlight-solid 1200ms cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 /* 效果3：瞬间爆发（如同闪电/快门） */
-.video-bg.full-illumination.effect-burst {
+.video-bg.full-illumination.effect-burst,
+.video-fallback.full-illumination.effect-burst {
   transition: --spotlight-radius 250ms cubic-bezier(0.1, 0.9, 0.2, 1), 
               --spotlight-solid 250ms cubic-bezier(0.1, 0.9, 0.2, 1);
 }

@@ -75,6 +75,7 @@ export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const fallbackRef = useRef<HTMLImageElement>(null)
   const [videoPlaying, setVideoPlaying] = useState(false)
 
   const { videoSrc, posterSrc } = useMemo(() => {
@@ -82,7 +83,7 @@ export default function ParticleText({ text }: { text: string }) {
     const baseNormalized = base.endsWith('/') ? base : `${base}/`
     return {
       videoSrc: `${baseNormalized}media/video.mp4`,
-      posterSrc: `${baseNormalized}media/兜底.jpg`,
+      posterSrc: `${baseNormalized}media/1.jpg`,
     }
   }, [])
 
@@ -424,6 +425,7 @@ export default function ParticleText({ text }: { text: string }) {
     let clickTimeoutId: ReturnType<typeof setTimeout>
     const EFFECTS = ['effect-ripple', 'effect-cinematic', 'effect-burst']
     let currentEffect = ''
+    const visualLayers = () => [videoRef.current, fallbackRef.current].filter(Boolean) as Element[]
 
     const handlePointerClick = (e: MouseEvent | TouchEvent) => {
       // 移动端点击时，如果没有经过 move，需要强制更新一次坐标
@@ -437,20 +439,21 @@ export default function ParticleText({ text }: { text: string }) {
         audioCtx.resume()
       }
 
-      if (videoRef.current) {
+      const layers = visualLayers()
+      if (layers.length > 0) {
         if (currentEffect) {
-          videoRef.current.classList.remove(currentEffect)
+          layers.forEach((el) => el.classList.remove(currentEffect))
         }
         
         currentEffect = EFFECTS[Math.floor(Math.random() * EFFECTS.length)]
-        videoRef.current.classList.add('full-illumination', currentEffect)
+        layers.forEach((el) => el.classList.add('full-illumination', currentEffect))
         
         clearTimeout(clickTimeoutId)
         clickTimeoutId = setTimeout(() => {
-          if (videoRef.current) {
-            videoRef.current.classList.remove('full-illumination', currentEffect)
-            currentEffect = ''
-          }
+          visualLayers().forEach((el) =>
+            el.classList.remove('full-illumination', currentEffect),
+          )
+          currentEffect = ''
         }, 3000)
       }
     }
@@ -509,6 +512,7 @@ export default function ParticleText({ text }: { text: string }) {
         onEnded={() => setVideoPlaying(false)}
       />
       <img
+        ref={fallbackRef}
         src={posterSrc}
         alt=""
         aria-hidden="true"
