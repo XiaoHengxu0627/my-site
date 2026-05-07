@@ -199,7 +199,7 @@ video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -2;
+  z-index: 0;
   pointer-events: none;
   /* 初始探照灯：扩大到 1.5 倍（实心区域 120px，羽化到 150px） */
   --spotlight-radius: 150px;
@@ -221,7 +221,7 @@ video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   opacity: 1;
   transition: opacity 500ms ease;
