@@ -54,9 +54,10 @@ export type SiteContent = {
       body: LocalizedString
       photo?: string
       heading?: LocalizedString
-      tagline?: LocalizedString
-      resumeSections?: ResumeSection[]
-    }
+  tagline?: LocalizedString
+  personalTags?: string[]
+  resumeSections?: ResumeSection[]
+}
     contact: {
       title: LocalizedString
       body: LocalizedString
@@ -107,6 +108,7 @@ type CmsSite = {
   aboutHeadingEn?: string
   aboutTaglineZh?: string
   aboutTaglineEn?: string
+  personalTags?: string[]
   resumeSections?: {
     titleZh: string
     titleEn: string
@@ -236,6 +238,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
               photo: withBaseIfRelative(cmsSite.aboutPhoto),
               heading: toLocalized(cmsSite.aboutHeadingZh, cmsSite.aboutHeadingEn),
               tagline: toLocalized(cmsSite.aboutTaglineZh, cmsSite.aboutTaglineEn),
+              personalTags: cmsSite.personalTags,
               resumeSections: cmsSite.resumeSections?.map((s) => ({
                 title: { zh: s.titleZh, en: s.titleEn },
                 items: s.items.map((it) => ({

@@ -214,6 +214,15 @@ export default function About() {
           {page.body ? (
             <div className="resume-summary">{content.t(page.body)}</div>
           ) : null}
+          {page.personalTags && page.personalTags.length > 0 ? (
+            <div className="personal-tags">
+              {page.personalTags.map((tag) => (
+                <span key={tag} className="personal-tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
