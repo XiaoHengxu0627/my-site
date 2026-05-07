@@ -8,6 +8,8 @@
   --container: 1040px;
   --gutter: clamp(64px, 4vw, 44px);
   --header-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   font-family:
     ui-sans-serif,
@@ -71,7 +73,7 @@ video {
 
 .main {
   flex: 1;
-  padding-top: calc(var(--header-h) + 36px);
+  padding-top: calc(var(--header-h) + var(--safe-top) + 36px);
   padding-bottom: 72px;
 }
 
@@ -211,6 +213,11 @@ body.home-mode {
   overflow: hidden;
 }
 
+html.home-mode,
+body.home-mode {
+  background: #000000;
+}
+
 @media (max-width: 768px) {
   .hidden-on-mobile {
     display: none !important;
@@ -337,7 +344,7 @@ body.home-mode {
 .mobile-works-cta {
   position: fixed;
   left: 50%;
-  bottom: 34px;
+  bottom: calc(34px + var(--safe-bottom));
   transform: translateX(-50%) translateY(14px);
   opacity: 0;
   border: 0;
@@ -453,7 +460,8 @@ body.home-mode {
   top: 0;
   left: 0;
   right: 0;
-  height: var(--header-h);
+  height: calc(var(--header-h) + var(--safe-top));
+  padding-top: var(--safe-top);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid transparent;
@@ -461,7 +469,7 @@ body.home-mode {
 }
 
 .header-inner {
-  height: 100%;
+  height: var(--header-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
