@@ -199,6 +199,10 @@ video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background-color: #000000;
+  background-image: url('/media/me_main.jpg');
+  background-size: cover;
+  background-position: center;
   z-index: -1;
   pointer-events: none;
   /* 初始探照灯：扩大到 1.5 倍（实心区域 120px，羽化到 150px） */
