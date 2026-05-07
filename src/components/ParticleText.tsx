@@ -96,6 +96,7 @@ export default function ParticleText({ text }: { text: string }) {
   const [isMobile, setIsMobile] = useState(computeIsMobile)
   const [mobileGifReady, setMobileGifReady] = useState(false)
   const [showMobileWorksCta, setShowMobileWorksCta] = useState(false)
+  const [mobileForceVideo, setMobileForceVideo] = useState(false)
 
   useEffect(() => {
     const handleResize = () => setIsMobile(computeIsMobile())
@@ -110,6 +111,7 @@ export default function ParticleText({ text }: { text: string }) {
     setMobileGifReady(false)
     setVideoFailed(false)
     setShowMobileWorksCta(false)
+    setMobileForceVideo(false)
   }, [isMobile])
 
   useEffect(() => {
@@ -118,6 +120,69 @@ export default function ParticleText({ text }: { text: string }) {
     const t = window.setTimeout(() => setShowMobileWorksCta(true), loopMs * 3)
     return () => window.clearTimeout(t)
   }, [isMobile, mobileGifReady])
+
+  useEffect(() => {
+    if (!isMobile || !mobileGifReady) return
+    const img = fallbackRef.current
+    if (!img) return
+
+    let cancelled = false
+    const canvas = document.createElement('canvas')
+    canvas.width = 24
+    canvas.height = 24
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    if (!ctx) return
+
+    const sample = () => {
+      try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+        let sum = 0
+        for (let i = 0; i < data.length; i += 20) sum = (sum + data[i]) % 1000000007
+        return sum
+      } catch {
+        return null
+      }
+    }
+
+    const first = sample()
+    if (first === null) return
+
+    let prev = first
+    let ticks = 0
+    let changed = false
+
+    const interval = window.setInterval(() => {
+      if (cancelled) return
+      const next = sample()
+      ticks += 1
+      if (next === null) {
+        window.clearInterval(interval)
+        return
+      }
+      if (next !== prev) {
+        changed = true
+        window.clearInterval(interval)
+        return
+      }
+      prev = next
+      if (ticks >= 10) {
+        window.clearInterval(interval)
+        if (!changed) setMobileForceVideo(true)
+      }
+    }, 180)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(interval)
+    }
+  }, [isMobile, mobileGifReady])
+
+  useEffect(() => {
+    if (!isMobile || !mobileForceVideo) return
+    videoRef.current?.play().catch(() => {})
+  }, [isMobile, mobileForceVideo])
 
   useEffect(() => {
     if (!isMobile) return
@@ -619,19 +684,23 @@ export default function ParticleText({ text }: { text: string }) {
       {loadingOverlay}
       {isMobile ? (
         <>
+          {(() => {
+            const showMobileVideo = videoPlaying || (mobileForceVideo && videoReady)
+            return (
+              <>
           <img
             ref={fallbackRef}
             src={gifSrc}
             alt=""
             aria-hidden="true"
-            className={`mobile-bg${videoPlaying ? ' hidden' : ''}`}
+            className={`mobile-bg${showMobileVideo ? ' hidden' : ''}`}
             loading="eager"
             onLoad={() => setMobileGifReady(true)}
             onError={() => setVideoFailed(true)}
           />
           <video
             ref={videoRef}
-            className={`mobile-video${videoPlaying ? '' : ' hidden'}`}
+            className={`mobile-video${showMobileVideo ? '' : ' hidden'}`}
             src={mobileVideoSrc}
             preload="auto"
             autoPlay
@@ -668,6 +737,9 @@ export default function ParticleText({ text }: { text: string }) {
               />
             </svg>
           </button>
+              </>
+            )
+          })()}
         </>
       ) : (
         <>
