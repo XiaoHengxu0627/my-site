@@ -951,19 +951,25 @@ body.home-mode {
 
 .product-tooltip {
   position: absolute;
-  bottom: calc(100% + 12px);
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: 280px;
+  padding-bottom: 12px; /* 增加感应区，防止鼠标移动到卡片过程中消失 */
+  background: transparent;
+  z-index: 100;
+  pointer-events: auto; /* 允许鼠标进入卡片 */
+  animation: tooltip-fade-in 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.product-tooltip-content {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 0.5px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  z-index: 100;
-  pointer-events: none;
-  animation: tooltip-fade-in 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
 }
 
 @keyframes tooltip-fade-in {
@@ -975,10 +981,6 @@ body.home-mode {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
-}
-
-.product-tooltip-content {
-  overflow: hidden;
 }
 
 .product-tooltip-image {
@@ -1012,7 +1014,7 @@ body.home-mode {
 
 .product-tooltip-arrow {
   position: absolute;
-  top: 100%;
+  top: calc(100% - 12px);
   left: 50%;
   transform: translateX(-50%);
   border-left: 6px solid transparent;

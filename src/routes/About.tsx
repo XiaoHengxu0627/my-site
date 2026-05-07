@@ -46,24 +46,29 @@ export default function About() {
 
     return (
       <>
-        {parts[0]}
-        <span
-          className="product-highlight"
-          onMouseEnter={() => setActiveTooltip(itemId || '')}
-          onMouseLeave={() => setActiveTooltip(null)}
-        >
-          {productName}
-          {activeTooltip === itemId && (
-            <ProductTooltip
-              details={{
-                name: productName,
-                info: content.t(details.info),
-                image: details.image,
-              }}
-            />
-          )}
-        </span>
-        {parts[1]}
+        {parts.map((part, index) => (
+          <span key={index}>
+            {part}
+            {index < parts.length - 1 && (
+              <span
+                className="product-highlight"
+                onMouseEnter={() => setActiveTooltip(`${itemId}-${index}`)}
+                onMouseLeave={() => setActiveTooltip(null)}
+              >
+                {productName}
+                {activeTooltip === `${itemId}-${index}` && (
+                  <ProductTooltip
+                    details={{
+                      name: productName,
+                      info: content.t(details.info),
+                      image: details.image,
+                    }}
+                  />
+                )}
+              </span>
+            )}
+          </span>
+        ))}
       </>
     )
   }
