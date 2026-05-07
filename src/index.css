@@ -131,17 +131,18 @@ video {
 .home-loading {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 99;
   display: grid;
   place-items: center;
   background: #000000;
   opacity: 1;
   transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
+  pointer-events: all;
 }
 
 .home-loading.hidden {
   opacity: 0;
+  pointer-events: none;
 }
 
 /* Lusion-style Loader */
