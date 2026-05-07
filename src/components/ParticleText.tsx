@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 type Particle = {
   x: number
@@ -75,6 +75,16 @@ export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [videoPlaying, setVideoPlaying] = useState(false)
+
+  const { videoSrc, posterSrc } = useMemo(() => {
+    const base = import.meta.env.BASE_URL || '/'
+    const baseNormalized = base.endsWith('/') ? base : `${base}/`
+    return {
+      videoSrc: `${baseNormalized}media/video.mp4`,
+      posterSrc: `${baseNormalized}media/me_main.jpg`,
+    }
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -487,11 +497,24 @@ export default function ParticleText({ text }: { text: string }) {
       <video
         ref={videoRef}
         className="video-bg"
-        src="/media/video.mp4"
+        src={videoSrc}
+        poster={posterSrc}
+        preload="auto"
         autoPlay
         loop
         muted
         playsInline
+        onPlaying={() => setVideoPlaying(true)}
+        onPause={() => setVideoPlaying(false)}
+        onEnded={() => setVideoPlaying(false)}
+      />
+      <img
+        src={posterSrc}
+        alt=""
+        aria-hidden="true"
+        className={`video-fallback${videoPlaying ? ' hidden' : ''}`}
+        decoding="async"
+        loading="eager"
       />
       <canvas
         ref={canvasRef}
