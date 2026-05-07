@@ -191,7 +191,7 @@ export default function ParticleText({ text }: { text: string }) {
     }
 
     // 强制给 CSS 变量注入初始中心点坐标，防止部分老旧移动端浏览器对 var() fallback 解析失效
-    if (containerRef.current) {
+    if (containerRef.current && !computeIsMobile()) {
       containerRef.current.style.setProperty('--mouse-x', `${window.innerWidth / 2}px`)
       containerRef.current.style.setProperty('--mouse-y', `${window.innerHeight / 2}px`)
     }
@@ -473,7 +473,7 @@ export default function ParticleText({ text }: { text: string }) {
       mouse.x = clientX
       mouse.y = clientY
 
-      if (containerRef.current) {
+      if (containerRef.current && !computeIsMobile()) {
         containerRef.current.style.setProperty('--mouse-x', `${clientX}px`)
         containerRef.current.style.setProperty('--mouse-y', `${clientY}px`)
       }
@@ -488,7 +488,7 @@ export default function ParticleText({ text }: { text: string }) {
       // 离开时，不要将探照灯设置到 -9999px（导致完全黑屏），而是重置到屏幕中央
       mouse.x = -9999
       mouse.y = -9999
-      if (containerRef.current) {
+      if (containerRef.current && !computeIsMobile()) {
         containerRef.current.style.setProperty('--mouse-x', `50vw`)
         containerRef.current.style.setProperty('--mouse-y', `50vh`)
       }
@@ -606,7 +606,7 @@ export default function ParticleText({ text }: { text: string }) {
           src={gifSrc}
           alt=""
           aria-hidden="true"
-          className="video-bg"
+          className="mobile-bg"
           decoding="async"
           loading="eager"
           onLoad={() => setFallbackReady(true)}
