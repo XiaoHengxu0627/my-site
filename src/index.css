@@ -1017,13 +1017,34 @@ video {
   }
 }
 
-@media (max-width: 860px) {
+@media screen and (max-width: 768px) {
   :root {
-    font-size: 16px;
+    font-size: 14px;
+    --gutter: 18px;
+    --header-h: 56px;
+  }
+
+  .site-header {
+    height: var(--header-h);
+  }
+
+  .header-inner {
+    gap: 16px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   .menu-toggle {
     display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .nav {
@@ -1036,7 +1057,7 @@ video {
     border-bottom: 1px solid var(--border);
     display: grid;
     gap: 16px;
-    padding: 16px var(--gutter);
+    padding: 12px var(--gutter);
     transform: translateY(-8px);
     opacity: 0;
     pointer-events: none;
@@ -1062,6 +1083,13 @@ video {
     gap: 12px;
   }
 
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 8px;
+  }
+
   .works-list {
     grid-template-columns: 1fr;
     row-gap: 34px;
@@ -1082,11 +1110,45 @@ video {
     align-self: start;
   }
 
+  .lang-option {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
   .project-title,
   .project-page-title,
   .page-title,
   .resume-name {
-    font-size: 30px;
+    font-size: 26px;
+  }
+
+  .project-subtitle,
+  .project-page-subtitle,
+  .page-body,
+  .contact-body,
+  .resume-tagline,
+  .resume-summary,
+  .resume-item-time {
+    font-size: 13px;
+  }
+
+  .btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .social-link {
+    min-height: 44px;
+    padding: 10px 6px;
+  }
+
+  .lightbox {
+    padding: 16px;
+  }
+
+  .lightbox-close {
+    min-height: 44px;
+    padding: 12px 16px;
   }
 
   .resume-hero {
@@ -1104,10 +1166,11 @@ video {
 
   .cursor-hint {
     font-size: 13px;
-    padding: 6px 14px;
+    padding: 10px 16px;
   }
 
   .brand-mark {
-    font-size: 20px;
+    font-size: 24px;
+    line-height: 1;
   }
 }
