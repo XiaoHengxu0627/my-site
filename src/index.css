@@ -271,27 +271,62 @@ body.home-mode {
   background: #000;
 }
 
-.mobile-works-cta {
+.glass-cta-button {
   position: fixed;
   left: 50%;
-  bottom: calc(34px + var(--safe-bottom));
-  transform: translateX(-50%) translateY(14px);
+  bottom: calc(40px + var(--safe-bottom));
+  transform: translateX(-50%) translateY(30px);
   opacity: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  padding: 12px 32px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 26px;
   cursor: pointer;
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
   transition:
-    opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 1200ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 1200ms cubic-bezier(0.23, 1, 0.32, 1),
+    background 300ms ease,
+    border-color 300ms ease;
   z-index: 25;
   pointer-events: none;
 }
 
-.mobile-works-cta.visible {
+.glass-cta-button.visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
+  /* 入场微弹效果 */
+  animation: glass-float-in 1400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes glass-float-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.glass-cta-text {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.glass-cta-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .home-logo .brand-mark {

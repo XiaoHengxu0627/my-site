@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import ParticleText from '../components/ParticleText'
-import CursorHint from '../components/CursorHint'
 import { useContent } from '../lib/content'
 
 export default function Home() {
@@ -26,12 +25,6 @@ export default function Home() {
   return (
     <div className="home-page" role="main" aria-label={brandText || 'Home'}>
       {brandText && <ParticleText text={brandText} />}
-      <div className="hidden-on-mobile">
-        <CursorHint
-          text={content.t({ zh: '尝试点击屏幕探索更多', en: 'Click anywhere to explore' })}
-          idleTime={5000}
-        />
-      </div>
     </div>
   )
 }
