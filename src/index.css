@@ -334,6 +334,29 @@ body.home-mode {
   background: rgba(0, 0, 0, 0.25);
 }
 
+.mobile-works-cta {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  transform: translateX(-50%) translateY(14px);
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 25;
+  pointer-events: none;
+}
+
+.mobile-works-cta.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
 .video-fallback {
   position: absolute;
   inset: 0;
@@ -443,11 +466,30 @@ body.home-mode {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  position: relative;
 }
 
 .brand {
   font-weight: 800;
   letter-spacing: 0.05em;
+}
+
+.brand-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.header-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--text);
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .brand-mark {

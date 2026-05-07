@@ -11,6 +11,36 @@ export default function Header() {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const { isHome, title } = useMemo(() => {
+    const pathname = location.pathname.replace(/\/+$/, '')
+    const home = pathname === '' || pathname === '/' || pathname === '/home'
+
+    const t = (zh: string, en: string) => (locale === 'zh' ? zh : en)
+
+    if (home) {
+      return { isHome: true, title: '' }
+    }
+
+    if (pathname === '/about') return { isHome: false, title: t('关于', 'About') }
+    if (pathname === '/contact') return { isHome: false, title: t('联系', 'Contact') }
+
+    if (
+      pathname === '/digitalart' ||
+      pathname === '/installation' ||
+      pathname === '/performance'
+    ) {
+      return { isHome: false, title: t('作品', 'Works') }
+    }
+
+    const slug = pathname.startsWith('/') ? pathname.slice(1) : pathname
+    if (content.status === 'ready') {
+      const project = content.projects.find((p) => p.slug === slug)
+      if (project) return { isHome: false, title: content.t(project.title) }
+    }
+
+    return { isHome: false, title: t('作品', 'Work') }
+  }, [content, locale, location.pathname])
+
   const nav = useMemo(() => {
     if (content.status !== 'ready') return []
     return content.site.nav
@@ -26,12 +56,14 @@ export default function Header() {
       <div className="container header-inner">
         <Link
           to={{ pathname: '/digitalart', search: location.search }}
-          className="brand"
+          className={cx('brand', !isHome && 'brand-hidden')}
           aria-label={brandText || 'Home'}
           onClick={() => setMenuOpen(false)}
         >
           <BrandMark text={brandText} />
         </Link>
+
+        {!isHome && title ? <div className="header-title">{title}</div> : null}
 
         <button
           type="button"
