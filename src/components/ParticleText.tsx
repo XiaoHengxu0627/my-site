@@ -71,19 +71,6 @@ function playEtherealNote() {
   osc.stop(now + 3)
 }
 
-function parseGifDurationMs(buf: ArrayBuffer) {
-  const bytes = new Uint8Array(buf)
-  let totalMs = 0
-  for (let i = 0; i + 7 < bytes.length; i++) {
-    if (bytes[i] !== 0x21 || bytes[i + 1] !== 0xf9 || bytes[i + 2] !== 0x04) continue
-    const delayCs = bytes[i + 4] | (bytes[i + 5] << 8)
-    const delayMs = Math.max(10, delayCs * 10)
-    totalMs += delayMs
-    i += 7
-  }
-  return totalMs
-}
-
 export default function ParticleText({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -95,8 +82,6 @@ export default function ParticleText({ text }: { text: string }) {
   const [canvasReady, setCanvasReady] = useState(false)
   const [forceHideLoading, setForceHideLoading] = useState(false)
   const [minLoadingElapsed, setMinLoadingElapsed] = useState(false)
-  const [loadingMinMs, setLoadingMinMs] = useState<number | null>(null)
-  const loadingStartRef = useRef<number>(0)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -106,44 +91,16 @@ export default function ParticleText({ text }: { text: string }) {
       posterSrc: `${baseNormalized}media/1.png`,
     }
   }, [])
-  const loadingSrc = useMemo(() => {
-    const base = import.meta.env.BASE_URL || '/'
-    const baseNormalized = base.endsWith('/') ? base : `${base}/`
-    return `${baseNormalized}media/loading.GIF`
-  }, [])
 
+  // Use a simple 1.5s minimum loading time for the new CSS loader
   useEffect(() => {
-    loadingStartRef.current = performance.now()
-    let cancelled = false
-
-    fetch(loadingSrc)
-      .then((r) => r.arrayBuffer())
-      .then((buf) => {
-        if (cancelled) return
-        const durationMs = parseGifDurationMs(buf)
-        const minMs = durationMs > 0 ? durationMs * 10 : 10000
-        setLoadingMinMs(minMs)
-      })
-      .catch(() => setLoadingMinMs(10000))
-
-    const hardCap = window.setTimeout(() => setForceHideLoading(true), 60000)
+    const t = window.setTimeout(() => setMinLoadingElapsed(true), 1500)
+    const hardCap = window.setTimeout(() => setForceHideLoading(true), 15000)
     return () => {
-      cancelled = true
+      window.clearTimeout(t)
       window.clearTimeout(hardCap)
     }
-  }, [loadingSrc])
-
-  useEffect(() => {
-    if (loadingMinMs === null) return
-    if (loadingMinMs === 0) {
-      setMinLoadingElapsed(true)
-      return
-    }
-    const elapsed = performance.now() - loadingStartRef.current
-    const remaining = Math.max(0, loadingMinMs - elapsed)
-    const t = window.setTimeout(() => setMinLoadingElapsed(true), remaining)
-    return () => window.clearTimeout(t)
-  }, [loadingMinMs])
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -561,13 +518,7 @@ export default function ParticleText({ text }: { text: string }) {
       }}
     >
       <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
-        <img
-          className="home-loading-gif"
-          src={loadingSrc}
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-        />
+        <div className="lusion-loader"></div>
       </div>
       <video
         ref={videoRef}

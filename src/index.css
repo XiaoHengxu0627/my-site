@@ -136,7 +136,7 @@ video {
   place-items: center;
   background: #000000;
   opacity: 1;
-  transition: opacity 320ms ease;
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
@@ -144,10 +144,46 @@ video {
   opacity: 0;
 }
 
-.home-loading-gif {
-  width: min(320px, 72vw);
-  height: auto;
-  image-rendering: auto;
+/* Lusion-style Loader */
+.lusion-loader {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lusion-loader::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: lusion-pulse-dot 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+.lusion-loader::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  animation: lusion-pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes lusion-pulse-dot {
+  0% { transform: scale(0.8); opacity: 0.3; }
+  50% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+  100% { transform: scale(0.8); opacity: 0.3; }
+}
+
+@keyframes lusion-pulse-ring {
+  0% { transform: scale(0.1); opacity: 0; border-width: 2px; }
+  50% { opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; border-width: 0.5px; }
 }
 
 .home-mode {
