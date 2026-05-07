@@ -7,9 +7,10 @@ type TooltipProps = {
     info: string
     images?: string[]
   }
+  onImageClick: (images: string[], index: number) => void
 }
 
-function ProductTooltip({ details }: TooltipProps) {
+function ProductTooltip({ details, onImageClick }: TooltipProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
@@ -26,7 +27,14 @@ function ProductTooltip({ details }: TooltipProps) {
     <div className="product-tooltip">
       <div className="product-tooltip-content">
         {details.images && details.images.length > 0 && (
-          <div className="product-tooltip-image">
+          <div
+            className="product-tooltip-image"
+            onClick={(e) => {
+              e.stopPropagation()
+              onImageClick(details.images!, currentImageIndex)
+            }}
+            style={{ cursor: 'zoom-in' }}
+          >
             {details.images.map((img, idx) => (
               <img
                 key={img}
@@ -60,6 +68,37 @@ function ProductTooltip({ details }: TooltipProps) {
 export default function About() {
   const content = useContent()
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+  const [lightbox, setLightbox] = useState<{
+    images: string[]
+    index: number
+  } | null>(null)
+
+  useEffect(() => {
+    if (!lightbox) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'ArrowLeft')
+        setLightbox((prev) =>
+          prev ? { ...prev, index: Math.max(0, prev.index - 1) } : null,
+        )
+      if (e.key === 'ArrowRight')
+        setLightbox((prev) =>
+          prev
+            ? {
+                ...prev,
+                index: Math.min(prev.images.length - 1, prev.index + 1),
+              }
+            : null,
+        )
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [lightbox])
 
   if (content.status !== 'ready') return null
 
@@ -75,35 +114,94 @@ export default function About() {
 
     return (
       <>
-        {parts.map((part, index) => (
-          <span key={index}>
-            {part}
-            {index < parts.length - 1 && (
-              <span
-                className="product-highlight"
-                onMouseEnter={() => setActiveTooltip(`${itemId}-${index}`)}
-                onMouseLeave={() => setActiveTooltip(null)}
-              >
-                {productName}
-                {activeTooltip === `${itemId}-${index}` && (
-                  <ProductTooltip
-                    details={{
-                      name: productName,
-                      info: content.t(details.info),
-                      images: details.images,
-                    }}
-                  />
-                )}
-              </span>
-            )}
-          </span>
-        ))}
+        {parts[0]}
+        <span
+          className="product-highlight"
+          onMouseEnter={() => setActiveTooltip(itemId || '')}
+          onMouseLeave={() => setActiveTooltip(null)}
+        >
+          {productName}
+          {activeTooltip === itemId && (
+            <ProductTooltip
+              details={{
+                name: productName,
+                info: content.t(details.info),
+                images: details.images,
+              }}
+              onImageClick={(images, index) => setLightbox({ images, index })}
+            />
+          )}
+        </span>
+        {parts[1]}
       </>
     )
   }
 
   return (
     <div className="container resume">
+      {lightbox && (
+        <div
+          className="lightbox"
+          role="dialog"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            className="lightbox-close"
+            onClick={() => setLightbox(null)}
+          >
+            {content.locale === 'zh' ? '关闭' : 'Close'}
+          </button>
+
+          {lightbox.images.length > 1 && (
+            <>
+              <div className="lightbox-counter">
+                {lightbox.index + 1} / {lightbox.images.length}
+              </div>
+              <button
+                type="button"
+                className="lightbox-nav lightbox-prev"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightbox((prev) =>
+                    prev
+                      ? { ...prev, index: Math.max(0, prev.index - 1) }
+                      : null,
+                  )
+                }}
+                disabled={lightbox.index === 0}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="lightbox-nav lightbox-next"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightbox((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          index: Math.min(
+                            prev.images.length - 1,
+                            prev.index + 1,
+                          ),
+                        }
+                      : null,
+                  )
+                }}
+                disabled={lightbox.index === lightbox.images.length - 1}
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          <div className="lightbox-inner" onClick={(e) => e.stopPropagation()}>
+            <img src={lightbox.images[lightbox.index]} alt="" />
+          </div>
+        </div>
+      )}
       <div className="resume-hero">
         <div className="resume-photo">
           <img src={photo} alt={heading} loading="eager" decoding="async" />
