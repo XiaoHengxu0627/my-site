@@ -129,9 +129,9 @@ video {
 }
 
 .home-loading {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 99;
+  z-index: 9999;
   display: grid;
   place-items: center;
   background: #000000;
