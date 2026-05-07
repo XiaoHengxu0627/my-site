@@ -145,6 +145,21 @@ video {
 }
 
 /* Lusion-style Loader */
+.lusion-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.lusion-progress {
+  color: rgba(255, 255, 255, 0.45);
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  font-weight: 300;
+}
+
 .lusion-loader {
   position: relative;
   width: 60px;

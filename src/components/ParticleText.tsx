@@ -82,6 +82,8 @@ export default function ParticleText({ text }: { text: string }) {
   const [canvasReady, setCanvasReady] = useState(false)
   const [forceHideLoading, setForceHideLoading] = useState(false)
   const [minLoadingElapsed, setMinLoadingElapsed] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -100,6 +102,32 @@ export default function ParticleText({ text }: { text: string }) {
       window.clearTimeout(t)
       window.clearTimeout(hardCap)
     }
+  }, [])
+
+  // Simulated progress easing over 1.5s
+  useEffect(() => {
+    let startTime = performance.now()
+    let animationFrame: number
+    const duration = 1500
+
+    const updateProgress = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+      const t = Math.min(elapsed / duration, 1)
+      // ease-out cubic
+      const easeOut = 1 - Math.pow(1 - t, 3)
+      
+      setProgress(p => {
+        if (p >= 100) return p
+        return easeOut * 99
+      })
+
+      if (t < 1) {
+        animationFrame = requestAnimationFrame(updateProgress)
+      }
+    }
+    
+    animationFrame = requestAnimationFrame(updateProgress)
+    return () => cancelAnimationFrame(animationFrame)
   }, [])
 
   useEffect(() => {
@@ -501,7 +529,16 @@ export default function ParticleText({ text }: { text: string }) {
   }, [text])
 
   const readyToReveal = (videoReady || fallbackReady) && canvasReady
-  const showLoading = !(minLoadingElapsed && (readyToReveal || forceHideLoading))
+
+  useEffect(() => {
+    if (readyToReveal && minLoadingElapsed) {
+      setProgress(100)
+      const t = setTimeout(() => setIsFullyLoaded(true), 400) // Delay to let user see 100%
+      return () => clearTimeout(t)
+    }
+  }, [readyToReveal, minLoadingElapsed])
+
+  const showLoading = !isFullyLoaded && !forceHideLoading
 
   return (
     <div
@@ -518,7 +555,12 @@ export default function ParticleText({ text }: { text: string }) {
       }}
     >
       <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
-        <div className="lusion-loader"></div>
+        <div className="lusion-loader-container">
+          <div className="lusion-loader"></div>
+          <div className="lusion-progress">
+            {Math.floor(progress).toString().padStart(2, '0')}%
+          </div>
+        </div>
       </div>
       <video
         ref={videoRef}
