@@ -77,6 +77,10 @@ export default function ParticleText({ text }: { text: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const fallbackRef = useRef<HTMLImageElement>(null)
   const [videoPlaying, setVideoPlaying] = useState(false)
+  const [videoReady, setVideoReady] = useState(false)
+  const [fallbackReady, setFallbackReady] = useState(false)
+  const [canvasReady, setCanvasReady] = useState(false)
+  const [forceHideLoading, setForceHideLoading] = useState(false)
 
   const { videoSrc, posterSrc } = useMemo(() => {
     const base = import.meta.env.BASE_URL || '/'
@@ -85,6 +89,11 @@ export default function ParticleText({ text }: { text: string }) {
       videoSrc: `${baseNormalized}media/video.mp4`,
       posterSrc: `${baseNormalized}media/1.png`,
     }
+  }, [])
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setForceHideLoading(true), 2500)
+    return () => window.clearTimeout(t)
   }, [])
 
   useEffect(() => {
@@ -468,6 +477,7 @@ export default function ParticleText({ text }: { text: string }) {
     // 初始化并开始动画
     resize()
     animate()
+    const bootRaf = window.requestAnimationFrame(() => setCanvasReady(true))
 
     return () => {
       if (canvas) observer.unobserve(canvas)
@@ -480,8 +490,12 @@ export default function ParticleText({ text }: { text: string }) {
       window.removeEventListener('touchstart', handlePointerClick)
       clearTimeout(clickTimeoutId)
       cancelAnimationFrame(animationFrameId)
+      window.cancelAnimationFrame(bootRaf)
     }
   }, [text])
+
+  const showLoading =
+    !forceHideLoading && !((videoReady || fallbackReady) && canvasReady)
 
   return (
     <div
@@ -497,6 +511,9 @@ export default function ParticleText({ text }: { text: string }) {
         pointerEvents: 'auto',
       }}
     >
+      <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
+        <div className="home-loading-spinner" aria-hidden="true" />
+      </div>
       <video
         ref={videoRef}
         className="video-bg"
@@ -507,6 +524,8 @@ export default function ParticleText({ text }: { text: string }) {
         loop
         muted
         playsInline
+        onLoadedData={() => setVideoReady(true)}
+        onCanPlay={() => setVideoReady(true)}
         onPlaying={() => setVideoPlaying(true)}
         onPause={() => setVideoPlaying(false)}
         onEnded={() => setVideoPlaying(false)}
@@ -519,6 +538,7 @@ export default function ParticleText({ text }: { text: string }) {
         className={`video-fallback${videoPlaying ? ' hidden' : ''}`}
         decoding="async"
         loading="eager"
+        onLoad={() => setFallbackReady(true)}
       />
       <canvas
         ref={canvasRef}
