@@ -32,7 +32,7 @@ export type ResumeEntry = {
   title: LocalizedString
   time?: LocalizedString
   description?: LocalizedString
-  productDetails?: ProductDetails
+  productDetails?: ProductDetails[]
   bullets?: LocalizedString[]
 }
 
@@ -126,8 +126,9 @@ type CmsSite = {
         nameEn: string
         infoZh: string
         infoEn: string
+        image?: string
         images?: string[]
-      }
+      }[]
       bulletsZh?: string[]
       bulletsEn?: string[]
     }[]
@@ -246,11 +247,13 @@ export function ContentProvider({ children }: { children: ReactNode }) {
                   title: { zh: it.titleZh, en: it.titleEn },
                   time: toLocalized(it.timeZh, it.timeEn),
                   description: toLocalized(it.descZh, it.descEn),
-                  productDetails: it.productDetails ? {
-                    name: { zh: it.productDetails.nameZh, en: it.productDetails.nameEn },
-                    info: { zh: it.productDetails.infoZh, en: it.productDetails.infoEn },
-                    images: it.productDetails.images?.map(img => withBaseIfRelative(img)).filter((img): img is string => !!img)
-                  } : undefined,
+                  productDetails: it.productDetails?.map((pd) => ({
+                    name: { zh: pd.nameZh, en: pd.nameEn },
+                    info: { zh: pd.infoZh, en: pd.infoEn },
+                    images: (pd.images || (pd.image ? [pd.image] : []))
+                      ?.map((img) => withBaseIfRelative(img))
+                      .filter((img): img is string => !!img),
+                  })),
                   bullets: zipLocalizedArray(it.bulletsZh, it.bulletsEn),
                 })),
               })),

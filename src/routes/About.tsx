@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import { useContent } from '../lib/content'
 
 type TooltipProps = {
@@ -106,35 +106,56 @@ export default function About() {
   const heading = content.t(page.heading) || content.t(page.title)
   const photo = page.photo || '/media/xiaohengxu.jpg'
 
-  const renderDescription = (text: string, details?: any, itemId?: string) => {
-    if (!details || !text.includes(content.t(details.name))) return text
+  const renderDescription = (text: string, productDetails?: any[], itemId?: string) => {
+     if (!productDetails || productDetails.length === 0) return text
+ 
+     let result: ReactNode[] = [text]
+ 
+     productDetails.forEach((details, detailIdx) => {
+       const productName = content.t(details.name)
+       if (!productName) return
+ 
+       const newResult: ReactNode[] = []
+       result.forEach((part) => {
+         if (typeof part !== 'string') {
+           newResult.push(part)
+           return
+         }
 
-    const productName = content.t(details.name)
-    const parts = text.split(productName)
+        const segments = part.split(productName)
+        segments.forEach((segment, segmentIdx) => {
+          newResult.push(segment)
+          if (segmentIdx < segments.length - 1) {
+            const uniqueId = `${itemId}-${detailIdx}-${segmentIdx}`
+            newResult.push(
+              <span
+                key={uniqueId}
+                className="product-highlight"
+                onMouseEnter={() => setActiveTooltip(uniqueId)}
+                onMouseLeave={() => setActiveTooltip(null)}
+              >
+                {productName}
+                {activeTooltip === uniqueId && (
+                  <ProductTooltip
+                    details={{
+                      name: productName,
+                      info: content.t(details.info),
+                      images: details.images,
+                    }}
+                    onImageClick={(images, index) =>
+                      setLightbox({ images, index })
+                    }
+                  />
+                )}
+              </span>,
+            )
+          }
+        })
+      })
+      result = newResult
+    })
 
-    return (
-      <>
-        {parts[0]}
-        <span
-          className="product-highlight"
-          onMouseEnter={() => setActiveTooltip(itemId || '')}
-          onMouseLeave={() => setActiveTooltip(null)}
-        >
-          {productName}
-          {activeTooltip === itemId && (
-            <ProductTooltip
-              details={{
-                name: productName,
-                info: content.t(details.info),
-                images: details.images,
-              }}
-              onImageClick={(images, index) => setLightbox({ images, index })}
-            />
-          )}
-        </span>
-        {parts[1]}
-      </>
-    )
+    return <>{result}</>
   }
 
   return (

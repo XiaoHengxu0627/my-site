@@ -143,14 +143,14 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [videoReady])
 
-  // Use a simple 1.0s minimum loading time for the new CSS loader
+  // Use a simple 0.8s minimum loading time for better mobile response
   useEffect(() => {
     if (hasShowedHomeLoading) {
       setMinLoadingElapsed(true)
       setIsFullyLoaded(true)
       return
     }
-    const t = window.setTimeout(() => setMinLoadingElapsed(true), 1000)
+    const t = window.setTimeout(() => setMinLoadingElapsed(true), 800)
     const hardCap = window.setTimeout(() => setForceHideLoading(true), 30000)
     return () => {
       window.clearTimeout(t)
@@ -158,7 +158,7 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [hasShowedHomeLoading])
 
-  // Simulated progress easing over 5s
+  // Simulated progress easing with fast-forward support
   useEffect(() => {
     if (hasShowedHomeLoading) {
       setProgress(100)
@@ -166,17 +166,24 @@ export default function ParticleText({ text }: { text: string }) {
     }
     let startTime = performance.now()
     let animationFrame: number
-    const duration = 5000
+    const duration = 4000 // Reduced from 5s to 4s base
 
     const updateProgress = (currentTime: number) => {
       const elapsed = currentTime - startTime
       const t = Math.min(elapsed / duration, 1)
+      
+      // If resources are ready, speed up progress to 100%
+      if (videoReady && canvasReady) {
+        setProgress(100)
+        return
+      }
+
       // ease-out cubic
       const easeOut = 1 - Math.pow(1 - t, 3)
       
       setProgress(p => {
         if (p >= 100) return p
-        return easeOut * 99
+        return Math.max(p, easeOut * 99)
       })
 
       if (t < 1) {
@@ -186,7 +193,7 @@ export default function ParticleText({ text }: { text: string }) {
     
     animationFrame = requestAnimationFrame(updateProgress)
     return () => cancelAnimationFrame(animationFrame)
-  }, [hasShowedHomeLoading])
+  }, [hasShowedHomeLoading, videoReady, canvasReady])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -575,11 +582,13 @@ export default function ParticleText({ text }: { text: string }) {
         ref={videoRef}
         className="video-bg"
         src={videoSrc}
+        poster="/media/nature_1.jpg"
         preload="auto"
         autoPlay
         loop
         muted
         playsInline
+        onLoadedData={() => setVideoReady(true)}
         onCanPlay={() => setVideoReady(true)}
         onCanPlayThrough={() => setVideoReady(true)}
       />
