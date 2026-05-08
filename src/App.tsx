@@ -9,6 +9,7 @@ const WorksIndex = lazy(() => import('./routes/WorksIndex.tsx'))
 const ProjectDetail = lazy(() => import('./routes/ProjectDetail.tsx'))
 const About = lazy(() => import('./routes/About.tsx'))
 const Contact = lazy(() => import('./routes/Contact.tsx'))
+const Bot = lazy(() => import('./routes/Bot.tsx'))
 const NotFound = lazy(() => import('./routes/NotFound.tsx'))
 
 function ForceRootOnLoad() {
@@ -63,6 +64,7 @@ export default function App() {
                 />
                 <Route path="about" element={<About />} />
                 <Route path="contact" element={<Contact />} />
+                <Route path="bot" element={<Bot />} />
                 <Route path=":slug" element={<ProjectDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Route>

@@ -84,9 +84,8 @@
             {
               "nameZh": "整车大数据门户",
               "nameEn": "Vehicle Big Data Portal",
-              "infoZh": "小米汽车内部核心数据中台。集成了整车生产、路测、安全等多维度数据，提供自动化报表、事故深度分析及 AI 智能问数功能，支撑跨部门高效数据决策。",
-              "infoEn": "Xiaomi Auto's core internal data platform. It integrates multi-dimensional data from production, testing, and safety, providing automated reports and AI-driven data insights.",
-              "image": "/media/xiaomi-data.jpg"
+              "infoZh": "小米汽车内部核心数据中台。集成了整车生产、路测、安全等多维度数据，提供自动化报表、事故深度分析及 AI 智能问数功能，支撑跨部门高效数据决策。注：因涉及公司保密信息，暂无法提供产品图片。",
+              "infoEn": "Xiaomi Auto's core internal data platform. It integrates multi-dimensional data from production, testing, and safety, providing automated reports and AI-driven data insights. Note: Due to company confidentiality, product images are not available."
             }
           ],
           "bulletsZh": [
@@ -115,9 +114,9 @@
             {
               "nameZh": "游戏助手",
               "nameEn": "Game Assistant",
-              "infoZh": "OPPO 平板端的系统级游戏增强工具。提供高性能模式、键鼠映射、AI 大神辅助等功能，旨在提升移动端游戏的操控精度与沉浸感。",
+              "infoZh": "**1.什么是游戏助手？**\n\n游戏助手是打造用户玩好游戏的一站式服务平台，满足用户在下载游戏后、玩游戏过程中的多样化诉求，提升用户游戏生命周期内的综合体验。\n\n**2.怎样使用游戏助手？**\n\n游戏助手是ColorOS平台针对游戏场景的独立侧边栏工具，在游戏中，通过侧边工具实现系统优化工具+游戏内容及福利的服务整合，为游戏用户提供游戏中闭环体验。\n\n触发场景：游戏助手会在游戏场景下自动启动，在进入游戏页面时，弹出启动动画，动画结束后隐藏在屏幕左上方侧边栏（默认）；",
               "infoEn": "OPPO's system-level game enhancement tool for tablets. It offers high-performance modes, key-mouse mapping, and AI-powered game assistance to improve control and immersion.",
-              "image": "/media/oppo-assistant.jpg"
+              "images": ["/media/game_assistant1.jpg", "/media/game_assistant2.jpg"]
             }
           ],
           "bulletsZh": [

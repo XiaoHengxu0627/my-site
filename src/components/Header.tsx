@@ -21,6 +21,7 @@ export default function Header() {
       return { isHome: true, title: '' }
     }
 
+    if (pathname === '/bot') return { isHome: false, title: t('Hank Bot', 'Hank Bot') }
     if (pathname === '/about') return { isHome: false, title: t('经历', 'Experience') }
     if (pathname === '/contact') return { isHome: false, title: t('联系', 'Contact') }
 
