@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Outlet, useLocation } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import AIBot from '../components/AIBot'
 import ScrollToTop from '../components/ScrollToTop'
 import { ContentProvider, useContent } from '../lib/content'
 
@@ -91,6 +92,7 @@ export default function Layout() {
         </motion.main>
       </AnimatePresence>
       <Footer />
+      <AIBot />
     </ContentProvider>
   )
 }
