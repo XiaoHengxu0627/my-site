@@ -79,7 +79,7 @@ function ProductCard({
           className="bot-page-card-image-wrap"
           onClick={() => onImageClick(images, currentImageIndex)}
         >
-          {images.map((img, idx) => (
+          {images.map((img: string, idx: number) => (
             <img 
               key={img}
               src={img} 
@@ -89,7 +89,7 @@ function ProductCard({
           ))}
           {images.length > 1 && (
             <div className="bot-page-card-image-dots">
-              {images.map((_, idx) => (
+              {images.map((_: string, idx: number) => (
                 <div
                   key={idx}
                   className={`bot-page-card-image-dot ${idx === currentImageIndex ? 'active' : ''}`}
