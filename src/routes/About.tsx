@@ -286,13 +286,18 @@ export default function About() {
                   ) : null}
                   {item.bullets && item.bullets.length > 0 ? (
                     <ul className="resume-item-bullets">
-                      {item.bullets.map((b, bIdx) =>
-                        content.t(b) ? (
-                          <li key={`${bIdx}-${content.t(b)}`}>
-                            {content.t(b)}
+                      {item.bullets.map((b, bIdx) => {
+                        const bulletText = content.t(b)
+                        return bulletText ? (
+                          <li key={`${bIdx}-${bulletText}`}>
+                            {renderDescription(
+                              bulletText,
+                              item.productDetails,
+                              `${itemId}-b-${bIdx}`,
+                            )}
                           </li>
-                        ) : null,
-                      )}
+                        ) : null
+                      })}
                     </ul>
                   ) : null}
                 </div>
