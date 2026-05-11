@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useGlobalState } from '../lib/globalState'
 
 type Particle = {
   x: number
@@ -84,13 +82,8 @@ export default function ParticleText({ text }: { text: string }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const { hasShowedHomeLoading, setHasShowedHomeLoading } = useGlobalState()
   const [videoReady, setVideoReady] = useState(false)
-  const [canvasReady, setCanvasReady] = useState(false)
-  const [forceHideLoading, setForceHideLoading] = useState(false)
-  const [minLoadingElapsed, setMinLoadingElapsed] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [isFullyLoaded, setIsFullyLoaded] = useState(false)
+  const [, setCanvasReady] = useState(false)
   const [isMobile, setIsMobile] = useState(computeIsMobile)
   const [showCTA, setShowCTA] = useState(false)
 
@@ -119,8 +112,8 @@ export default function ParticleText({ text }: { text: string }) {
     let timerId: number
     const triggerCTA = () => setShowCTA(true)
 
-    // 5秒后自动显示
-    timerId = window.setTimeout(triggerCTA, 5000)
+    // 2秒后自动显示
+    timerId = window.setTimeout(triggerCTA, 2000)
 
     // 监听主动行为：滚动或点击
     const handleActivity = () => {
@@ -143,57 +136,6 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [videoReady])
 
-  // Use a simple 0.8s minimum loading time for better mobile response
-  useEffect(() => {
-    if (hasShowedHomeLoading) {
-      setMinLoadingElapsed(true)
-      setIsFullyLoaded(true)
-      return
-    }
-    const t = window.setTimeout(() => setMinLoadingElapsed(true), 800)
-    const hardCap = window.setTimeout(() => setForceHideLoading(true), 30000)
-    return () => {
-      window.clearTimeout(t)
-      window.clearTimeout(hardCap)
-    }
-  }, [hasShowedHomeLoading])
-
-  // Simulated progress easing with fast-forward support
-  useEffect(() => {
-    if (hasShowedHomeLoading) {
-      setProgress(100)
-      return
-    }
-    let startTime = performance.now()
-    let animationFrame: number
-    const duration = 4000 // Reduced from 5s to 4s base
-
-    const updateProgress = (currentTime: number) => {
-      const elapsed = currentTime - startTime
-      const t = Math.min(elapsed / duration, 1)
-      
-      // If resources are ready, speed up progress to 100%
-      if (videoReady && canvasReady) {
-        setProgress(100)
-        return
-      }
-
-      // ease-out cubic
-      const easeOut = 1 - Math.pow(1 - t, 3)
-      
-      setProgress(p => {
-        if (p >= 100) return p
-        return Math.max(p, easeOut * 99)
-      })
-
-      if (t < 1) {
-        animationFrame = requestAnimationFrame(updateProgress)
-      }
-    }
-    
-    animationFrame = requestAnimationFrame(updateProgress)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [hasShowedHomeLoading, videoReady, canvasReady])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -536,33 +478,6 @@ export default function ParticleText({ text }: { text: string }) {
     }
   }, [text])
 
-  const readyToReveal = videoReady && canvasReady
-
-  useEffect(() => {
-    if (readyToReveal && minLoadingElapsed) {
-      setProgress(100)
-      const t = setTimeout(() => {
-        setIsFullyLoaded(true)
-        setHasShowedHomeLoading(true)
-      }, 400) // Delay to let user see 100%
-      return () => clearTimeout(t)
-    }
-  }, [readyToReveal, minLoadingElapsed, setHasShowedHomeLoading])
-
-  const showLoading = !isFullyLoaded && !forceHideLoading && !hasShowedHomeLoading
-
-  const loadingOverlay = createPortal(
-    <div className={`home-loading${showLoading ? '' : ' hidden'}`}>
-      <div className="lusion-loader-container">
-        <div className="lusion-loader"></div>
-        <div className="lusion-progress">
-          {Math.floor(progress).toString().padStart(2, '0')}%
-        </div>
-      </div>
-    </div>,
-    document.body
-  )
-
   return (
     <div
       ref={containerRef}
@@ -577,7 +492,6 @@ export default function ParticleText({ text }: { text: string }) {
         pointerEvents: 'auto',
       }}
     >
-      {loadingOverlay}
       <video
         ref={videoRef}
         className="video-bg"
@@ -596,7 +510,7 @@ export default function ParticleText({ text }: { text: string }) {
         type="button"
         className={`glass-cta-button${showCTA ? ' visible' : ''}`}
         aria-label="Come to know me"
-        onClick={() => navigate({ pathname: '/digitalart', search: location.search })}
+        onClick={() => navigate({ pathname: '/bot', search: location.search })}
       >
         <span className="glass-cta-text">Come to know me</span>
       </button>

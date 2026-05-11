@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useContent } from '../lib/content'
+import { buildSystemPrompt, buildSuggestionQuestions, getFollowUpsForReply } from '../lib/knowledge'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -18,24 +19,62 @@ type Message = {
 const API_KEY = 'ark-1adcc8e5-f5ec-4c48-8c52-661087580121-f8e0c'
 const BASE_URL = 'https://ark.cn-beijing.volces.com/api/v3/responses'
 const MODEL = 'doubao-seed-2-0-mini-260428'
-const HISTORY_KEY = 'bot_page_messages_v1'
+
+function TypewriterText({ text, speed = 25, onTyping, onDone }: { text: string; speed?: number; onTyping?: () => void; onDone?: () => void }) {
+  const [displayed, setDisplayed] = useState('')
+  const [done, setDone] = useState(false)
+
+  useEffect(() => {
+    setDisplayed('')
+    setDone(false)
+    let index = 0
+    const timer = setInterval(() => {
+      index++
+      setDisplayed(text.slice(0, index))
+      if (onTyping) onTyping()
+      if (index >= text.length) {
+        clearInterval(timer)
+        setDone(true)
+        if (onDone) onDone()
+      }
+    }, speed)
+    return () => clearInterval(timer)
+  }, [text, speed])
+
+  return (
+    <>
+      {displayed}
+      {!done && <span className="typewriter-cursor" />}
+    </>
+  )
+}
 
 function ProductCard({
   product,
   t,
   onImageClick,
+  enableTypewriter,
+  onTyping,
 }: {
   product: any
   t: (value: any) => string
   onImageClick: (images: string[], index: number) => void
+  enableTypewriter?: boolean
+  onTyping?: () => void
 }) {
   const images = product.images || (product.image ? [product.image] : [])
   const [parsedInfo, setParsedInfo] = useState('')
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showImages, setShowImages] = useState(!enableTypewriter)
+  const [typedChars, setTypedChars] = useState(0)
+  const [doneTyping, setDoneTyping] = useState(!enableTypewriter)
+  const rawInfoRef = useRef('')
+  const name = t(product.name)
+  const dept = product.dept ? t(product.dept) : ''
 
   useEffect(() => {
     const processMarkdown = async () => {
       const rawInfo = t(product.info)
+      rawInfoRef.current = rawInfo
       if (!rawInfo) return
       
       try {
@@ -56,52 +95,86 @@ function ProductCard({
   }, [product.info, t])
 
   useEffect(() => {
-    if (!images || images.length <= 1) return
+    if (!enableTypewriter) return
+    if (doneTyping) {
+      setShowImages(true)
+      return
+    }
+    setShowImages(false)
+  }, [enableTypewriter, doneTyping])
 
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images!.length)
-    }, 3000)
+  useEffect(() => {
+    if (showImages && onTyping) {
+      const t = setTimeout(() => onTyping(), 50)
+      return () => clearTimeout(t)
+    }
+  }, [showImages])
 
-    return () => clearInterval(interval)
-  }, [images])
+  useEffect(() => {
+    if (!enableTypewriter) return
+    const rawInfo = rawInfoRef.current
+    if (!rawInfo) return
+
+    const fullLine = `${name}${dept ? ` — ${dept}` : ''}\n\n${rawInfo}`
+    const totalLen = fullLine.length
+    if (typedChars >= totalLen) {
+      setDoneTyping(true)
+      return
+    }
+
+    const timer = setInterval(() => {
+      setTypedChars((prev) => {
+        const next = prev + 1
+        if (onTyping) onTyping()
+        if (next >= totalLen) {
+          clearInterval(timer)
+          setDoneTyping(true)
+        }
+        return next
+      })
+    }, 18)
+
+    return () => clearInterval(timer)
+  }, [enableTypewriter, name, dept])
 
   return (
     <div className="bot-page-card">
-      <div className="bot-page-card-title">{t(product.name)}</div>
-      {product.dept ? <div className="bot-page-card-dept">{t(product.dept)}</div> : null}
-      <div 
-        className="bot-page-card-info"
-        dangerouslySetInnerHTML={{ __html: parsedInfo }}
-      />
-      {images.length > 0 ? (
-        <button
-          type="button"
-          className="bot-page-card-image-wrap"
-          onClick={() => onImageClick(images, currentImageIndex)}
-        >
+      {!enableTypewriter || doneTyping ? (
+        <>
+          <div className="bot-page-card-title">{name}</div>
+          {dept ? <div className="bot-page-card-dept">{dept}</div> : null}
+          <div
+            className="bot-page-card-info"
+            dangerouslySetInnerHTML={{ __html: parsedInfo }}
+          />
+        </>
+      ) : (
+        <div className="bot-page-card-typing">
+          {(() => {
+            const fullLine = `${name}${dept ? ` — ${dept}` : ''}\n\n${rawInfoRef.current}`
+            return fullLine.slice(0, typedChars).split('\n').map((line, i) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                {line}
+              </span>
+            ))
+          })()}
+          <span className="typewriter-cursor" />
+        </div>
+      )}
+      {images.length > 0 && showImages ? (
+        <div className="bot-page-card-images">
           {images.map((img: string, idx: number) => (
-            <img 
+            <button
               key={img}
-              src={img} 
-              alt={t(product.name)} 
-              className={`bot-page-card-image ${idx === currentImageIndex ? 'active' : ''}`} 
-            />
+              type="button"
+              className="bot-page-card-image-wrap"
+              onClick={() => onImageClick(images, idx)}
+            >
+              <img src={img} alt={name} className="bot-page-card-image" />
+            </button>
           ))}
-          {images.length > 1 && (
-            <div className="bot-page-card-image-dots">
-              {images.map((_: string, idx: number) => (
-                <div
-                  key={idx}
-                  className={`bot-page-card-image-dot ${idx === currentImageIndex ? 'active' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setCurrentImageIndex(idx)
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </button>
+        </div>
       ) : null}
     </div>
   )
@@ -109,14 +182,7 @@ function ProductCard({
 
 export default function Bot() {
   const content = useContent()
-  const [messages, setMessages] = useState<Message[]>(() => {
-    try {
-      const saved = localStorage.getItem(HISTORY_KEY)
-      return saved ? JSON.parse(saved) : []
-    } catch {
-      return []
-    }
-  })
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null)
@@ -127,6 +193,35 @@ export default function Bot() {
       ? ['智能掌柜', '整车大数据门户', '游戏助手']
       : ['Smart Manager', 'Vehicle Big Data Portal', 'Game Assistant']
   }, [content.status, content.locale])
+
+  const suggestionQuestions = useMemo(
+    () => buildSuggestionQuestions(content, content.locale),
+    [content.status, content.locale],
+  )
+
+  const [inputFocused, setInputFocused] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
+  const [replyDone, setReplyDone] = useState(false)
+  const scrollWhileTyping = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const isLastMessageWelcome =
+    messages.length === 1 &&
+    messages[0].role === 'bot' &&
+    messages[0].type === 'text'
+
+  const handleSuggestionClick = async (question: string) => {
+    setInputValue('')
+    setInputFocused(false)
+    addMessage({ role: 'user', type: 'text', text: question })
+    await doSend(question)
+  }
+
+  const handleSendFromClick = async (question: string) => {
+    setInputValue('')
+    addMessage({ role: 'user', type: 'text', text: question })
+    await doSend(question)
+  }
 
   const addMessage = (message: Omit<Message, 'id' | 'timestamp'>) => {
     setMessages((prev) => [
@@ -157,7 +252,6 @@ export default function Bot() {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(messages))
     scrollToBottom(messages.length <= 1 ? 'auto' : 'smooth')
   }, [messages, isTyping])
 
@@ -170,7 +264,7 @@ export default function Bot() {
         role: 'bot',
         type: 'text',
         text: content.t({
-          zh: '你好，我是肖蘅栩 Hank 的 AI 助手。你可以直接从我这里了解他的经历～',
+          zh: '老师您好，我是肖蘅栩 Hank 的 AI 助手。下方标签可带您快速了解他的产品经历，欢迎点击～',
           en: "Hi, I'm Hank's AI assistant. Ask me about his projects, impact, and skills.",
         }),
       })
@@ -229,8 +323,12 @@ export default function Bot() {
     }
 
     setIsTyping(true)
+    setReplyDone(false)
+    const scrollTimer = setInterval(() => scrollToBottom('auto'), 80)
     setTimeout(() => {
       setIsTyping(false)
+      clearInterval(scrollTimer)
+      scrollToBottom('smooth')
       if (!foundDetails) {
         addMessage({
           role: 'bot',
@@ -254,10 +352,21 @@ export default function Bot() {
     if (!inputValue.trim()) return
     const text = inputValue.trim()
     setInputValue('')
+    setInputFocused(false)
     addMessage({ role: 'user', type: 'text', text })
+    await doSend(text)
+  }
 
+  const doSend = async (text: string) => {
     setIsTyping(true)
+    setReplyDone(false)
+    scrollWhileTyping.current = setInterval(() => scrollToBottom('auto'), 100)
     try {
+      const systemPrompt = buildSystemPrompt(content, content.locale)
+      const userMessage = systemPrompt
+        ? `${systemPrompt}\n\n---\n\n用户问：${text}`
+        : `你是 Hank 的 AI 助手，请用${content.locale === 'zh' ? '中文' : '英文'}回答问题。\n\n用户问：${text}`
+
       const res = await fetch(BASE_URL, {
         method: 'POST',
         headers: {
@@ -272,9 +381,7 @@ export default function Bot() {
               content: [
                 {
                   type: 'input_text',
-                  text: `你是 Hank 的 AI 助手，请用中文回答问题。
-
-用户问：${text}`,
+                  text: userMessage,
                 },
               ],
             },
@@ -299,6 +406,9 @@ export default function Bot() {
         reply = data.output[1].content[0].text
       }
       addMessage({ role: 'bot', type: 'text', text: reply })
+
+      const contextFollowUps = getFollowUpsForReply(reply, content.locale, suggestionQuestions)
+      setFollowUpQuestions(contextFollowUps)
     } catch (err: any) {
       addMessage({
         role: 'system',
@@ -310,6 +420,11 @@ export default function Bot() {
       })
     } finally {
       setIsTyping(false)
+      if (scrollWhileTyping.current) {
+        clearInterval(scrollWhileTyping.current)
+        scrollWhileTyping.current = null
+      }
+      scrollToBottom('smooth')
     }
   }
 
@@ -370,46 +485,68 @@ export default function Bot() {
       <div className="container bot-page-shell">
         <section className="bot-chat-panel">
           <div className="bot-chat-header">
-            <button
-              type="button"
-              className="bot-chat-reset"
-              onClick={() => setMessages([])}
-            >
-              {content.locale === 'zh' ? '新对话' : 'New Chat'}
-            </button>
           </div>
 
           <div className="bot-chat-messages" ref={scrollRef}>
-            {messages.map((msg) => (
+            <AnimatePresence>
+              {inputFocused && (
+                <motion.div
+                  className="bot-chat-suggestion-overlay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setInputFocused(false)}
+                />
+              )}
+            </AnimatePresence>
+            {messages.map((msg, idx) => (
               <div key={msg.id} className={`bot-chat-row ${msg.role}`}>
-                {msg.role === 'bot' && (
-                  <div className="bot-avatar">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                )}
                 <div className="bot-chat-content">
                   {msg.type === 'text' ? (
-                    <div className="bot-chat-bubble">{msg.text}</div>
+                    <div className="bot-chat-bubble">
+                      {msg.role === 'bot' ? (
+                        <TypewriterText text={msg.text || ''} onTyping={() => scrollToBottom('auto')} onDone={() => setReplyDone(true)} />
+                      ) : (
+                        msg.text
+                      )}
+                    </div>
                   ) : null}
                   {msg.type === 'product' && msg.productData ? (
                     <ProductCard
                       product={msg.productData}
                       t={content.t}
+                      enableTypewriter
+                      onTyping={() => scrollToBottom('auto')}
                       onImageClick={(images, index) => setLightbox({ images, index })}
                     />
+                  ) : null}
+                  {msg.role === 'bot' && !isLastMessageWelcome && idx === messages.length - 1 && replyDone && followUpQuestions.length > 0 ? (
+                    <motion.div
+                      className="bot-chat-followup"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.6 }}
+                    >
+                      <div className="bot-chat-followup-list">
+                        {followUpQuestions.slice(0, 2).map((q) => (
+                          <button
+                            key={q}
+                            type="button"
+                            className="bot-chat-followup-item"
+                            onClick={() => handleSendFromClick(q)}
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
                   ) : null}
                 </div>
               </div>
             ))}
             {isTyping ? (
               <div className="bot-chat-row bot">
-                <div className="bot-avatar">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor"/>
-                  </svg>
-                </div>
                 <div className="bot-chat-content">
                   <div className="bot-chat-bubble typing-indicator">
                     <span />
@@ -421,7 +558,7 @@ export default function Bot() {
             ) : null}
           </div>
 
-          <div className="bot-chat-tools">
+          <div className="bot-chat-tools" style={{ display: inputFocused ? 'none' : '' }}>
             {quickProducts.map((name) => (
               <button
                 key={name}
@@ -434,13 +571,57 @@ export default function Bot() {
             ))}
           </div>
 
+          <div className="bot-chat-suggestion-wrap">
+            <AnimatePresence>
+              {inputFocused && suggestionQuestions.length > 0 ? (
+              <motion.div
+                className="bot-chat-suggestion"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="bot-chat-suggestion-title">
+                  {content.t({ zh: '猜您想问？', en: 'You may want to ask:' })}
+                </div>
+                <div className="bot-chat-suggestion-list">
+                  {suggestionQuestions.map((q, i) => (
+                    <motion.div
+                      key={q}
+                      initial={{ opacity: 0, scale: 0.92 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2, delay: i * 0.05 }}
+                    >
+                      <button
+                        type="button"
+                        className="bot-chat-suggestion-item"
+                        onMouseDown={(e) => {
+                          e.preventDefault()
+                          handleSuggestionClick(q)
+                        }}
+                      >
+                        {q}
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ) : null}
+            </AnimatePresence>
+          </div>
+
           <div className="bot-chat-input-wrap">
             <input
+              ref={inputRef}
               type="text"
               className="bot-chat-input"
               value={inputValue}
-              placeholder={content.t({ zh: '输入消息...', en: 'Type a message...' })}
+              placeholder={content.t({ zh: '选个问题，听听我的经历～', en: 'Type a message...' })}
               onChange={(e) => setInputValue(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => {
+                setTimeout(() => setInputFocused(false), 200)
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSend()
               }}

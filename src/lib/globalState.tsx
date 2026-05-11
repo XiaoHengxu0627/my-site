@@ -1,17 +1,12 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 
-type GlobalStateContextValue = {
-  hasShowedHomeLoading: boolean
-  setHasShowedHomeLoading: (val: boolean) => void
-}
+type GlobalStateContextValue = Record<string, never>
 
 const GlobalStateContext = createContext<GlobalStateContextValue | null>(null)
 
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
-  const [hasShowedHomeLoading, setHasShowedHomeLoading] = useState(false)
-
   return (
-    <GlobalStateContext.Provider value={{ hasShowedHomeLoading, setHasShowedHomeLoading }}>
+    <GlobalStateContext.Provider value={{}}>
       {children}
     </GlobalStateContext.Provider>
   )

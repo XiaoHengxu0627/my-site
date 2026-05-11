@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import BrandMark from './BrandMark'
 import { useContent } from '../lib/content'
@@ -10,6 +10,45 @@ export default function Header() {
   const content = useContent()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [clickedBot, setClickedBot] = useState(false)
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const tooltipPosRef = useRef({ x: 0, y: 0 })
+  const botLinkRef = useRef<HTMLAnchorElement | null>(null)
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const isBotPage = location.pathname === '/bot'
+  const showDot = !isBotPage && !clickedBot
+
+  const handleBotClick = useCallback(() => {
+    setClickedBot(true)
+  }, [])
+
+  const handleBotMouseEnter = useCallback(() => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    hoverTimer.current = setTimeout(() => {
+      if (botLinkRef.current) {
+        const rect = botLinkRef.current.getBoundingClientRect()
+        tooltipPosRef.current = { x: rect.left + rect.width / 2, y: rect.bottom + 8 }
+      }
+      setTooltipVisible(true)
+      if (tooltipTimer.current) clearTimeout(tooltipTimer.current)
+      tooltipTimer.current = setTimeout(() => setTooltipVisible(false), 3000)
+    }, 500)
+  }, [])
+
+  const handleBotMouseLeave = useCallback(() => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    if (tooltipTimer.current) clearTimeout(tooltipTimer.current)
+    setTooltipVisible(false)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimer.current) clearTimeout(hoverTimer.current)
+      if (tooltipTimer.current) clearTimeout(tooltipTimer.current)
+    }
+  }, [])
 
   const { isHome, title } = useMemo(() => {
     const pathname = location.pathname.replace(/\/+$/, '')
@@ -90,19 +129,54 @@ export default function Header() {
           <ul className="nav-list">
             {nav.map((item) => (
               <li key={item.to} className="nav-item">
-                <NavLink
-                  to={{ pathname: item.to, search: location.search }}
-                  className={({ isActive }) =>
-                    cx(
-                      'nav-link',
-                      isActive && 'nav-link-active',
-                      location.pathname === item.to && 'nav-link-active',
-                    )
-                  }
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {content.status === 'ready' ? content.t(item.label) : ''}
-                </NavLink>
+                {item.to === '/bot' ? (
+                  <NavLink
+                    ref={botLinkRef}
+                    to={{ pathname: item.to, search: location.search }}
+                    className={({ isActive }) =>
+                      cx(
+                        'nav-link',
+                        isActive && 'nav-link-active',
+                        location.pathname === item.to && 'nav-link-active',
+                      )
+                    }
+                    onClick={() => {
+                      setMenuOpen(false)
+                      handleBotClick()
+                    }}
+                    onMouseEnter={handleBotMouseEnter}
+                    onMouseLeave={handleBotMouseLeave}
+                    style={{ position: 'relative' }}
+                  >
+                    {content.status === 'ready' ? content.t(item.label) : ''}
+                    {showDot ? (
+                      <svg className="bot-notify-dot" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M7.08444 11.0844L8.55132 6.68377H10.4487L11.9156 11.0844L16.3162 12.5513V14.4487L11.9156 15.9156L10.4487 20.3162H8.55132L7.08444 15.9156L2.68378 14.4487V12.5513L7.08444 11.0844ZM9.5 10.1623L8.82369 12.1912L8.19123 12.8237L6.16228 13.5L8.19123 14.1763L8.82369 14.8088L9.5 16.8377L10.1763 14.8088L10.8088 14.1763L12.8377 13.5L10.8088 12.8237L10.1763 12.1912L9.5 10.1623Z" fill="url(#sparkle-grad)"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M16.1507 5.15066L16.9308 2.81026H18.0692L18.8493 5.15066L21.1897 5.93079V7.06921L18.8493 7.84934L18.0692 10.1897H16.9308L16.1507 7.84934L13.8103 7.06921V5.93079L16.1507 5.15066Z" fill="url(#sparkle-grad)"/>
+                        <defs>
+                          <linearGradient id="sparkle-grad" x1="11.9368" y1="2.81026" x2="11.9368" y2="20.3162" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#00FFE1"/>
+                            <stop offset="1" stopColor="#2B00FF"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    ) : null}
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to={{ pathname: item.to, search: location.search }}
+                    className={({ isActive }) =>
+                      cx(
+                        'nav-link',
+                        isActive && 'nav-link-active',
+                        location.pathname === item.to && 'nav-link-active',
+                      )
+                    }
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {content.status === 'ready' ? content.t(item.label) : ''}
+                  </NavLink>
+                )}
               </li>
             ))}
           </ul>
@@ -132,6 +206,16 @@ export default function Header() {
             </button>
           </div>
         </nav>
+      </div>
+
+      <div
+        className={`bot-notify-tooltip${tooltipVisible ? ' visible' : ''}`}
+        style={{
+          left: tooltipPosRef.current.x,
+          top: tooltipPosRef.current.y,
+        }}
+      >
+        来了解我负责的产品～
       </div>
     </header>
   )
