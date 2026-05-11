@@ -1230,7 +1230,7 @@ body.bot-mode,
   background: #fff;
   border-radius: 999px;
   padding: 0 16px;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
 }
 
@@ -1930,6 +1930,7 @@ body.bot-mode,
 
   .bot-page-shell {
     padding: 0;
+    --bot-gutter: 18px;
   }
 
   .bot-chat-panel {
@@ -1940,37 +1941,60 @@ body.bot-mode,
   }
 
   .bot-chat-header {
-    padding: 10px 0 12px;
+    padding: 0 var(--bot-gutter);
+    min-height: 0;
   }
 
   .bot-chat-messages {
-    padding: 12px 0;
+    padding: 10px var(--bot-gutter);
   }
 
   .bot-chat-content {
-    max-width: min(680px, 92%);
-  }
-
-  .bot-chat-tools {
-    padding: 10px 0 0;
-  }
-
-  .bot-chat-suggestion-item {
-    font-size: 13px;
-    padding: 8px 16px;
-  }
-
-  .bot-chat-followup-item {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-
-  .bot-chat-input-wrap {
-    padding: 10px 0 8px;
+    max-width: 100%;
   }
 
   .bot-chat-bubble {
     max-width: 100%;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .bot-chat-tools {
+    padding: 8px var(--bot-gutter) 0;
+    gap: 8px;
+  }
+
+  .bot-chat-chip {
+    font-size: 15px;
+    padding: 8px 16px;
+  }
+
+  .bot-chat-suggestion-wrap {
+    padding: 2px var(--bot-gutter) 0;
+  }
+
+  .bot-chat-suggestion-item {
+    font-size: 16px;
+    padding: 12px 22px;
+  }
+
+  .bot-chat-suggestion-title {
+    font-size: 16px;
+    padding-bottom: 14px;
+  }
+
+  .bot-chat-followup-item {
+    font-size: 15px;
+    padding: 9px 18px;
+  }
+
+  .bot-chat-input-wrap {
+    padding: 8px var(--bot-gutter) 12px;
+  }
+
+  .bot-page-card-info {
+    font-size: 16px;
+    line-height: 1.7;
   }
 
   .bot-page-card {
@@ -1989,6 +2013,53 @@ body.bot-mode,
 
   .bot-page-card-image {
     max-height: 220px;
+  }
+}
+
+@media (max-width: 420px) {
+  .bot-page-shell {
+    --bot-gutter: 14px;
+  }
+
+  .bot-chat-bubble {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .bot-chat-chip {
+    font-size: 14px;
+    padding: 7px 13px;
+  }
+
+  .bot-chat-suggestion-item {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+
+  .bot-chat-suggestion-title {
+    font-size: 15px;
+    padding-bottom: 12px;
+  }
+
+  .bot-chat-followup-item {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .bot-chat-input {
+    height: 44px;
+    font-size: 16px;
+    padding: 0 14px;
+  }
+
+  .bot-chat-send {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .bot-page-card-info {
+    font-size: 15px;
   }
 }
 
@@ -2351,6 +2422,7 @@ body.bot-mode,
     top: var(--header-h);
     left: 0;
     right: 0;
+    bottom: 0;
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border);
@@ -2363,6 +2435,8 @@ body.bot-mode,
     transition:
       opacity 180ms ease,
       transform 180ms ease;
+    overflow-y: auto;
+    z-index: 100;
   }
 
   .nav-open {

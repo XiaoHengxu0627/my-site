@@ -496,7 +496,7 @@ export default function ParticleText({ text }: { text: string }) {
         ref={videoRef}
         className="video-bg"
         src={videoSrc}
-        poster="/media/nature_1.jpg"
+        poster="/media/nature.jpg"
         preload="auto"
         autoPlay
         loop
