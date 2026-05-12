@@ -187,7 +187,6 @@ function zipLocalizedArray(
 }
 
 const DEFAULT_NAV: SiteNavItem[] = [
-  { to: '/home', label: { zh: '主页', en: 'Home' } },
   { to: '/about', label: { zh: '经历', en: 'Experience' } },
   { to: '/digitalart', label: { zh: '作品', en: 'Works' } },
   { to: '/bot', label: { zh: 'Hank Bot', en: 'Hank Bot' } },

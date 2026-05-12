@@ -50,35 +50,30 @@ export default function Header() {
     }
   }, [])
 
-  const { isHome, title } = useMemo(() => {
+  const title = useMemo(() => {
     const pathname = location.pathname.replace(/\/+$/, '')
-    const home = pathname === '' || pathname === '/' || pathname === '/home'
-
     const t = (zh: string, en: string) => (locale === 'zh' ? zh : en)
 
-    if (home) {
-      return { isHome: true, title: '' }
-    }
-
-    if (pathname === '/bot') return { isHome: false, title: t('Hank Bot', 'Hank Bot') }
-    if (pathname === '/about') return { isHome: false, title: t('经历', 'Experience') }
-    if (pathname === '/contact') return { isHome: false, title: t('联系', 'Contact') }
+    if (pathname === '' || pathname === '/') return t('经历', 'Experience')
+    if (pathname === '/about') return t('经历', 'Experience')
+    if (pathname === '/bot') return t('Hank Bot', 'Hank Bot')
+    if (pathname === '/contact') return t('联系', 'Contact')
 
     if (
       pathname === '/digitalart' ||
       pathname === '/installation' ||
       pathname === '/performance'
     ) {
-      return { isHome: false, title: t('作品', 'Works') }
+      return t('作品', 'Works')
     }
 
     const slug = pathname.startsWith('/') ? pathname.slice(1) : pathname
     if (content.status === 'ready') {
       const project = content.projects.find((p) => p.slug === slug)
-      if (project) return { isHome: false, title: content.t(project.title) }
+      if (project) return content.t(project.title)
     }
 
-    return { isHome: false, title: t('作品', 'Work') }
+    return t('作品', 'Work')
   }, [content, locale, location.pathname])
 
   const nav = useMemo(() => {
@@ -95,15 +90,15 @@ export default function Header() {
     <header className="site-header">
       <div className="container header-inner">
         <Link
-          to={{ pathname: '/digitalart', search: location.search }}
-          className={cx('brand', !isHome && 'brand-hidden')}
+          to={{ pathname: '/about', search: location.search }}
+          className="brand"
           aria-label={brandText || 'Home'}
           onClick={() => setMenuOpen(false)}
         >
           <BrandMark text={brandText} />
         </Link>
 
-        {!isHome && title ? <div className="header-title">{title}</div> : null}
+        {title ? <div className="header-title">{title}</div> : null}
 
         <button
           type="button"

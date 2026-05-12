@@ -4,7 +4,6 @@ import { LocaleProvider } from './lib/locale'
 import { GlobalStateProvider } from './lib/globalState'
 
 const Layout = lazy(() => import('./routes/Layout.tsx'))
-const Home = lazy(() => import('./routes/Home.tsx'))
 const WorksIndex = lazy(() => import('./routes/WorksIndex.tsx'))
 const ProjectDetail = lazy(() => import('./routes/ProjectDetail.tsx'))
 const About = lazy(() => import('./routes/About.tsx'))
@@ -28,8 +27,7 @@ export default function App() {
           >
             <Routes>
               <Route element={<Layout />}>
-                <Route index element={<Navigate to="/home" replace />} />
-                <Route path="home" element={<Home />} />
+                <Route index element={<Navigate to="/about" replace />} />
                 <Route
                   path="digitalart"
                   element={<WorksIndex section="digitalart" />}

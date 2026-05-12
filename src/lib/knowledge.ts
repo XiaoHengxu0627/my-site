@@ -10,6 +10,64 @@ function extractBullet(
   return []
 }
 
+export function buildUserProjectContext(
+  state: ContentState,
+  locale: 'zh' | 'en',
+): string {
+  if (state.status !== 'ready') return ''
+  const isZh = locale === 'zh'
+
+  if (!isZh) {
+    return [
+      '## Project A [Recommendation Strategy]',
+      '- Meituan Smart Merchant AI Chat Revamp',
+      '- Layered recommendation: first-screen dynamic priority (store status driven),',
+      '  dialogue recommendation (intent prediction + cold-start fallback)',
+      '- Key tradeoff: dropped full-tag recommendation, focused on few high-priority scenarios with rule-based approach;',
+      '  kept free-text input instead of fully enclosed click-based dialogue',
+      '',
+      '## Project B [Evaluation System]',
+      '- Xiaomi Collision Accident AI Evaluation System',
+      '- Four-layer assessment: Safety / Factual / Task / Value layers',
+      '- Intent-driven adversarial evaluation set',
+      '- Key design: use rules to bound reasoning, then multi-modal model for automated judgment',
+      '',
+      '## Project C [Data Portal]',
+      '- Vehicle Data Unified Platform',
+      '- Converged 42 dashboards into 9 themes (by business value / usage frequency / data accuracy)',
+      '- Built term-field semantic mapping for ChatBI natural language querying',
+      '',
+      '## Project D [Experience Design]',
+      '- Workplace mental health multi-sensory therapeutic product',
+      '- Decomposed biophilic theory into interactive sensory components (touch/smell/hearing/sight)',
+    ].join('\n')
+  }
+
+  return [
+    '## 项目A【推荐策略】',
+    '- 美团智能掌柜 AI 会话改版',
+    '- 分层推荐策略：首屏动态优先级推荐（商家经营状态驱动），',
+    '  对话推荐问（意图预测 + 冷启动兜底）',
+    '- 关键权衡：放弃全标签推荐，聚焦少数高优场景做规则化；',
+    '  保留输入框，没做全封闭点选式对话',
+    '',
+    '## 项目B【评测体系】',
+    '- 小米碰撞事故 AI 评测体系',
+    '- 四层评估框架：安全层 / 事实层 / 任务层 / 价值层',
+    '- 意图驱动的对抗性评测集',
+    '- 关键设计：先用规则约束推理边界，再用多模态模型做自动化判定',
+    '',
+    '## 项目C【数据门户】',
+    '- 整车数据统一平台',
+    '- 42 个看板按业务价值 / 使用频率 / 数据准确性收敛成 9 大专题',
+    '- 建术语 - 字段语义映射实现 ChatBI 自然语言取数',
+    '',
+    '## 项目D【体验设计】',
+    '- 职场心理健康多感官疗愈产品',
+    '- 把亲生物理论拆成可交互的感官组件（触觉/嗅觉/听觉/视觉四层叠加）',
+  ].join('\n')
+}
+
 export function buildSystemPrompt(
   state: ContentState,
   locale: 'zh' | 'en',

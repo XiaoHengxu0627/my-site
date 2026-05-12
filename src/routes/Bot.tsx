@@ -2,23 +2,27 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useContent } from '../lib/content'
 import { buildSystemPrompt, buildSuggestionQuestions, getFollowUpsForReply } from '../lib/knowledge'
+import { buildWeeklyReportPrompt, buildWeeklyReportDeepDivePrompt, isWeeklyReportQuery, isDeepDiveQuery } from '../lib/agents'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 
+import WeeklyReportCard from '../components/WeeklyReportCard'
+import { BoldText } from '../lib/format'
+
 type Message = {
   id: string
   role: 'bot' | 'user' | 'system'
-  type: 'text' | 'product'
+  type: 'text' | 'product' | 'weeklyReport'
   text?: string
   productData?: any
   timestamp: number
 }
 
-const API_KEY = 'ark-1adcc8e5-f5ec-4c48-8c52-661087580121-f8e0c'
-const BASE_URL = 'https://ark.cn-beijing.volces.com/api/v3/responses'
-const MODEL = 'doubao-seed-2-0-mini-260428'
+const API_KEY = 'sk-b490f6455bb04df48b092557c205d02c'
+const BASE_URL = 'https://api.deepseek.com/v1/chat/completions'
+const MODEL = 'deepseek-chat'
 
 function TypewriterText({ text, speed = 25, onTyping, onDone }: { text: string; speed?: number; onTyping?: () => void; onDone?: () => void }) {
   const [displayed, setDisplayed] = useState('')
@@ -43,7 +47,7 @@ function TypewriterText({ text, speed = 25, onTyping, onDone }: { text: string; 
 
   return (
     <>
-      {displayed}
+      {done ? <BoldText text={text} /> : displayed}
       {!done && <span className="typewriter-cursor" />}
     </>
   )
@@ -189,9 +193,11 @@ export default function Bot() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const quickProducts = useMemo(() => {
     if (content.status !== 'ready') return []
-    return content.locale === 'zh'
+    const base = content.locale === 'zh'
       ? ['智能掌柜', '整车大数据门户', '游戏助手']
       : ['Smart Manager', 'Vehicle Big Data Portal', 'Game Assistant']
+    const weekly = content.locale === 'zh' ? 'AI周报' : 'AI Weekly'
+    return [...base, weekly]
   }, [content.status, content.locale])
 
   const suggestionQuestions = useMemo(
@@ -203,6 +209,7 @@ export default function Bot() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
   const [replyDone, setReplyDone] = useState(false)
+  const [weeklyReportMode, setWeeklyReportMode] = useState(false)
   const scrollWhileTyping = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const isLastMessageWelcome =
@@ -361,11 +368,28 @@ export default function Bot() {
     setIsTyping(true)
     setReplyDone(false)
     scrollWhileTyping.current = setInterval(() => scrollToBottom('auto'), 100)
+
+    const isWeeklyRequest = isWeeklyReportQuery(text)
+    const isDeepDive = weeklyReportMode && isDeepDiveQuery(text)
+    if (isWeeklyRequest) setWeeklyReportMode(true)
+
     try {
-      const systemPrompt = buildSystemPrompt(content, content.locale)
-      const userMessage = systemPrompt
-        ? `${systemPrompt}\n\n---\n\n用户问：${text}`
-        : `你是 Hank 的 AI 助手，请用${content.locale === 'zh' ? '中文' : '英文'}回答问题。\n\n用户问：${text}`
+      let userMessage: string
+      const locale = content.locale
+
+      if (isDeepDive) {
+        const agentPrompt = buildWeeklyReportDeepDivePrompt(text)
+        userMessage = agentPrompt
+      } else if (isWeeklyRequest) {
+        const agentPrompt = buildWeeklyReportPrompt()
+        userMessage = `${agentPrompt}\n\n现在开始生成最新一期 AI 前沿技术周报。`
+      } else {
+        if (weeklyReportMode) setWeeklyReportMode(false)
+        const systemPrompt = buildSystemPrompt(content, locale)
+        userMessage = systemPrompt
+          ? `${systemPrompt}\n\n---\n\n用户问：${text}`
+          : `你是 Hank 的 AI 助手，请用${locale === 'zh' ? '中文' : '英文'}回答问题。\n\n用户问：${text}`
+      }
 
       const res = await fetch(BASE_URL, {
         method: 'POST',
@@ -375,15 +399,10 @@ export default function Bot() {
         },
         body: JSON.stringify({
           model: MODEL,
-          input: [
+          messages: [
             {
               role: 'user',
-              content: [
-                {
-                  type: 'input_text',
-                  text: userMessage,
-                },
-              ],
+              content: userMessage,
             },
           ],
         }),
@@ -393,19 +412,17 @@ export default function Bot() {
       const data = await res.json()
       
       let reply = 'No response.'
-      if (data.output && Array.isArray(data.output)) {
-        const messageOutput = data.output.find((item: any) => item.type === 'message')
-        if (messageOutput && messageOutput.content && Array.isArray(messageOutput.content)) {
-          const textContent = messageOutput.content.find((c: any) => c.type === 'output_text' || c.type === 'input_text')
-          if (textContent) {
-            reply = textContent.text || textContent.content || 'No response.'
-          }
-        }
+      if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
+        reply = data.choices[0].message?.content || 'No response.'
       }
-      if (reply === 'No response.' && data.output?.[1]?.content?.[0]?.text) {
-        reply = data.output[1].content[0].text
+      const msgType = isWeeklyRequest ? 'weeklyReport' : 'text'
+      addMessage({ role: 'bot', type: msgType, text: reply })
+      if (isWeeklyRequest) {
+        setTimeout(() => {
+          setReplyDone(true)
+          scrollToBottom('smooth')
+        }, 100)
       }
-      addMessage({ role: 'bot', type: 'text', text: reply })
 
       const contextFollowUps = getFollowUpsForReply(reply, content.locale, suggestionQuestions)
       setFollowUpQuestions(contextFollowUps)
@@ -508,7 +525,7 @@ export default function Bot() {
                       {msg.role === 'bot' ? (
                         <TypewriterText text={msg.text || ''} onTyping={() => scrollToBottom('auto')} onDone={() => setReplyDone(true)} />
                       ) : (
-                        msg.text
+                        <BoldText text={msg.text || ''} />
                       )}
                     </div>
                   ) : null}
@@ -521,7 +538,13 @@ export default function Bot() {
                       onImageClick={(images, index) => setLightbox({ images, index })}
                     />
                   ) : null}
-                  {msg.role === 'bot' && !isLastMessageWelcome && idx === messages.length - 1 && replyDone && followUpQuestions.length > 0 ? (
+                  {msg.type === 'weeklyReport' && msg.text ? (
+                    <WeeklyReportCard text={msg.text} />
+                  ) : null}
+                  {msg.role === 'bot' && !isLastMessageWelcome && idx === messages.length - 1 && (() => {
+                    const isWeeklyDone = msg.type === 'weeklyReport' ? true : replyDone
+                    return isWeeklyDone && followUpQuestions.length > 0
+                  })() ? (
                     <motion.div
                       className="bot-chat-followup"
                       initial={{ opacity: 0, y: 6 }}
@@ -559,16 +582,26 @@ export default function Bot() {
           </div>
 
           <div className="bot-chat-tools" style={{ display: inputFocused ? 'none' : '' }}>
-            {quickProducts.map((name) => (
-              <button
-                key={name}
-                type="button"
-                className="bot-chat-chip"
-                onClick={() => handleProductQuery(name)}
-              >
-                {name}
-              </button>
-            ))}
+            {quickProducts.map((name) => {
+              const isWeekly = name === 'AI周报' || name === 'AI Weekly'
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  className="bot-chat-chip"
+                  onClick={() => {
+                    if (isWeekly) {
+                      addMessage({ role: 'user', type: 'text', text: name })
+                      doSend(name)
+                    } else {
+                      handleProductQuery(name)
+                    }
+                  }}
+                >
+                  {name}
+                </button>
+              )
+            })}
           </div>
 
           <div className="bot-chat-suggestion-wrap">
