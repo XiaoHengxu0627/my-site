@@ -436,7 +436,7 @@ export default function AIBot() {
 
                 <div className="ai-bot-input-area">
                   <div className="quick-actions">
-                    {['智能掌柜', '整车大数据门户', '游戏助手'].map(name => (
+                    {['智能掌柜', '整车大数据', '游戏助手'].map(name => (
                       <button 
                         key={name} 
                         className="quick-action-btn"

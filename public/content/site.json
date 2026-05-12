@@ -82,7 +82,7 @@
           "descEn": "Scope: Built a data portal to solve fragmented dashboards, manual data access, and inefficient crash analysis; improved data consumption and safety operations with AI.",
           "productDetails": [
             {
-              "nameZh": "整车大数据门户",
+              "nameZh": "整车大数据",
               "nameEn": "Vehicle Big Data Portal",
               "infoZh": "**1. 看板整合**\n\n动作：将部门所有看板统一至单一数据平台，按域分类呈现，支持全局搜索与筛选\n\n目标：消除多入口、多口径的查找成本，让数据“找得到、信得过”。\n\n**2. 专题聚合**\n\n动作：可按项目、车型、试验阶段等维度，把跨域看板自由组合为“研发专题”，一站式查看上下文数据。\n\n目标：将分散数据还原为清晰决策场景，缩短从“看数”到“决策”的路径。\n\n**3. 社区化交互**\n\n收藏：一键收藏高频看板，形成个人工作台，快速复访。\n\n点赞：为有价值的分析点赞，靠前展示优质内容，激励高质量产出。\n\n评论：直接在数据波动节点下评论，关联上下文，实现数据对话。\n\n目标：让数据可沉淀、可讨论，将个人洞察转化为团队知识，加速问题收敛。\n\n**【核心业务目标】**\n\n促进数据消费：降低使用门槛，培养主动看数、用数的习惯，提升数据活跃度。\n\n提升研发决策效率：通过快速发现异常、聚合证据、形成共识，减少跨团队沟通摩擦与决策延迟。\n\n**平台包含重要数据，我们对演示画面做了适当模糊处理，敬请谅解。*",
               "infoEn": "Xiaomi Auto's core internal data platform. It integrates multi-dimensional data from production, testing, and safety, providing automated reports and AI-driven data insights. Note: Due to company confidentiality, product images are not available.",

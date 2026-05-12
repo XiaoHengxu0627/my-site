@@ -1,9 +1,121 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import BrandMark from './BrandMark'
 import { useContent } from '../lib/content'
-import { useLocale } from '../lib/locale'
+import { useLocale, type Locale } from '../lib/locale'
 import { cx } from '../lib/cx.ts'
+
+function NavContent({
+  nav,
+  locale,
+  setLocale,
+  location,
+  botLinkRef,
+  showDot,
+  handleBotClick,
+  handleBotMouseEnter,
+  handleBotMouseLeave,
+  onItemClick,
+}: {
+  nav: { to: string; label: { zh: string; en: string } }[]
+  locale: Locale
+  setLocale: (v: Locale) => void
+  location: any
+  botLinkRef: React.RefObject<HTMLAnchorElement | null>
+  showDot: boolean
+  handleBotClick: () => void
+  handleBotMouseEnter: () => void
+  handleBotMouseLeave: () => void
+  onItemClick: () => void
+}) {
+  const content = useContent()
+
+  return (
+    <>
+      <ul className="nav-list">
+        {nav.map((item) => (
+          <li key={item.to} className="nav-item">
+            {item.to === '/bot' ? (
+              <NavLink
+                ref={botLinkRef}
+                to={{ pathname: item.to, search: location.search }}
+                className={({ isActive }) =>
+                  cx(
+                    'nav-link',
+                    isActive && 'nav-link-active',
+                    location.pathname === item.to && 'nav-link-active',
+                  )
+                }
+                onClick={() => {
+                  onItemClick()
+                  handleBotClick()
+                }}
+                onMouseEnter={handleBotMouseEnter}
+                onMouseLeave={handleBotMouseLeave}
+              >
+                <span className="nav-link-label">
+                  {content.status === 'ready' ? content.t(item.label) : ''}
+                  {showDot ? (
+                    <svg className="bot-notify-dot" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M7.08444 11.0844L8.55132 6.68377H10.4487L11.9156 11.0844L16.3162 12.5513V14.4487L11.9156 15.9156L10.4487 20.3162H8.55132L7.08444 15.9156L2.68378 14.4487V12.5513L7.08444 11.0844ZM9.5 10.1623L8.82369 12.1912L8.19123 12.8237L6.16228 13.5L8.19123 14.1763L8.82369 14.8088L9.5 16.8377L10.1763 14.8088L10.8088 14.1763L12.8377 13.5L10.8088 12.8237L10.1763 12.1912L9.5 10.1623Z" fill="url(#sparkle-grad)"/>
+                      <path fillRule="evenodd" clipRule="evenodd" d="M16.1507 5.15066L16.9308 2.81026H18.0692L18.8493 5.15066L21.1897 5.93079V7.06921L18.8493 7.84934L18.0692 10.1897H16.9308L16.1507 7.84934L13.8103 7.06921V5.93079L16.1507 5.15066Z" fill="url(#sparkle-grad)"/>
+                      <defs>
+                        <linearGradient id="sparkle-grad" x1="11.9368" y1="2.81026" x2="11.9368" y2="20.3162" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#00FFE1"/>
+                          <stop offset="1" stopColor="#2B00FF"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  ) : null}
+                </span>
+              </NavLink>
+            ) : (
+              <NavLink
+                to={{ pathname: item.to, search: location.search }}
+                className={({ isActive }) =>
+                  cx(
+                    'nav-link',
+                    isActive && 'nav-link-active',
+                    location.pathname === item.to && 'nav-link-active',
+                  )
+                }
+                onClick={onItemClick}
+              >
+                {content.status === 'ready' ? content.t(item.label) : ''}
+              </NavLink>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div
+        className="lang-switch"
+        role="group"
+        aria-label={`Language Selector: ${locale === 'zh' ? 'Chinese' : 'English'}`}
+      >
+        <button
+          type="button"
+          className={cx('lang-option', locale === 'zh' && 'lang-option-active')}
+          aria-label="Chinese"
+          aria-current={locale === 'zh'}
+          onClick={() => setLocale('zh')}
+        >
+          <div className="lang-label">中文</div>
+        </button>
+        <button
+          type="button"
+          className={cx('lang-option', locale === 'en' && 'lang-option-active')}
+          aria-label="English"
+          aria-current={locale === 'en'}
+          onClick={() => setLocale('en')}
+        >
+          <div className="lang-label">English</div>
+        </button>
+      </div>
+    </>
+  )
+}
 
 export default function Header() {
   const { locale, setLocale } = useLocale()
@@ -86,132 +198,96 @@ export default function Header() {
     return content.t(content.site.brand)
   }, [content])
 
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+
+  const navProps = {
+    nav,
+    locale,
+    setLocale,
+    location,
+    botLinkRef,
+    showDot,
+    handleBotClick,
+    handleBotMouseEnter,
+    handleBotMouseLeave,
+    onItemClick: closeMenu,
+  }
+
   return (
-    <header className="site-header">
-      <div className="container header-inner">
-        <Link
-          to={{ pathname: '/about', search: location.search }}
-          className="brand"
-          aria-label={brandText || 'Home'}
-          onClick={() => setMenuOpen(false)}
-        >
-          <BrandMark text={brandText} />
-        </Link>
-
-        {title ? <div className="header-title">{title}</div> : null}
-
-        <button
-          type="button"
-          className="menu-toggle"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <svg
-            aria-hidden="true"
-            className="menu-toggle-icon"
-            viewBox="0 0 1024 1024"
-            xmlns="http://www.w3.org/2000/svg"
+    <>
+      <header className="site-header">
+        <div className="container header-inner">
+          <Link
+            to={{ pathname: '/about', search: location.search }}
+            className="brand"
+            aria-label={brandText || 'Home'}
+            onClick={closeMenu}
           >
-            <path
-              d="M122.7 229.4h781.1c20.7 0 37.5-16.8 37.5-37.5s-16.8-37.5-37.5-37.5H122.7c-20.7 0-37.5 16.8-37.5 37.5s16.8 37.5 37.5 37.5zM903.8 473.1H122.7c-20.7 0-37.5 16.8-37.5 37.5s16.8 37.5 37.5 37.5h781.1c20.7 0 37.5-16.8 37.5-37.5-0.1-20.7-16.9-37.5-37.5-37.5zM903.8 791H122.7c-20.7 0-37.5 16.8-37.5 37.5S102 866 122.7 866h781.1c20.7 0 37.5-16.8 37.5-37.5S924.4 791 903.8 791z"
-              fill="currentColor"
-            />
-          </svg>
-        </button>
+            <BrandMark text={brandText} />
+          </Link>
 
-        <nav className={cx('nav', menuOpen && 'nav-open')}>
-          <ul className="nav-list">
-            {nav.map((item) => (
-              <li key={item.to} className="nav-item">
-                {item.to === '/bot' ? (
-                  <NavLink
-                    ref={botLinkRef}
-                    to={{ pathname: item.to, search: location.search }}
-                    className={({ isActive }) =>
-                      cx(
-                        'nav-link',
-                        isActive && 'nav-link-active',
-                        location.pathname === item.to && 'nav-link-active',
-                      )
-                    }
-                    onClick={() => {
-                      setMenuOpen(false)
-                      handleBotClick()
-                    }}
-                    onMouseEnter={handleBotMouseEnter}
-                    onMouseLeave={handleBotMouseLeave}
-                    style={{ position: 'relative' }}
-                  >
-                    {content.status === 'ready' ? content.t(item.label) : ''}
-                    {showDot ? (
-                      <svg className="bot-notify-dot" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fillRule="evenodd" clipRule="evenodd" d="M7.08444 11.0844L8.55132 6.68377H10.4487L11.9156 11.0844L16.3162 12.5513V14.4487L11.9156 15.9156L10.4487 20.3162H8.55132L7.08444 15.9156L2.68378 14.4487V12.5513L7.08444 11.0844ZM9.5 10.1623L8.82369 12.1912L8.19123 12.8237L6.16228 13.5L8.19123 14.1763L8.82369 14.8088L9.5 16.8377L10.1763 14.8088L10.8088 14.1763L12.8377 13.5L10.8088 12.8237L10.1763 12.1912L9.5 10.1623Z" fill="url(#sparkle-grad)"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M16.1507 5.15066L16.9308 2.81026H18.0692L18.8493 5.15066L21.1897 5.93079V7.06921L18.8493 7.84934L18.0692 10.1897H16.9308L16.1507 7.84934L13.8103 7.06921V5.93079L16.1507 5.15066Z" fill="url(#sparkle-grad)"/>
-                        <defs>
-                          <linearGradient id="sparkle-grad" x1="11.9368" y1="2.81026" x2="11.9368" y2="20.3162" gradientUnits="userSpaceOnUse">
-                            <stop stopColor="#00FFE1"/>
-                            <stop offset="1" stopColor="#2B00FF"/>
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    ) : null}
-                  </NavLink>
-                ) : (
-                  <NavLink
-                    to={{ pathname: item.to, search: location.search }}
-                    className={({ isActive }) =>
-                      cx(
-                        'nav-link',
-                        isActive && 'nav-link-active',
-                        location.pathname === item.to && 'nav-link-active',
-                      )
-                    }
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {content.status === 'ready' ? content.t(item.label) : ''}
-                  </NavLink>
-                )}
-              </li>
-            ))}
-          </ul>
+          {title ? <div className="header-title">{title}</div> : null}
 
-          <div
-            className="lang-switch"
-            role="group"
-            aria-label={`Language Selector: ${locale === 'zh' ? 'Chinese' : 'English'}`}
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
           >
-            <button
-              type="button"
-              className={cx('lang-option', locale === 'zh' && 'lang-option-active')}
-              aria-label="Chinese"
-              aria-current={locale === 'zh'}
-              onClick={() => setLocale('zh')}
-            >
-              <div className="lang-label">中文</div>
-            </button>
-            <button
-              type="button"
-              className={cx('lang-option', locale === 'en' && 'lang-option-active')}
-              aria-label="English"
-              aria-current={locale === 'en'}
-              onClick={() => setLocale('en')}
-            >
-              <div className="lang-label">English</div>
-            </button>
-          </div>
-        </nav>
-      </div>
+            <span className="menu-toggle-inner">
+              <svg
+                aria-hidden="true"
+                className="menu-toggle-icon"
+                viewBox="0 0 1024 1024"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M122.7 229.4h781.1c20.7 0 37.5-16.8 37.5-37.5s-16.8-37.5-37.5-37.5H122.7c-20.7 0-37.5 16.8-37.5 37.5s16.8 37.5 37.5 37.5zM903.8 473.1H122.7c-20.7 0-37.5 16.8-37.5 37.5s16.8 37.5 37.5 37.5h781.1c20.7 0 37.5-16.8 37.5-37.5-0.1-20.7-16.9-37.5-37.5-37.5zM903.8 791H122.7c-20.7 0-37.5 16.8-37.5 37.5S102 866 122.7 866h781.1c20.7 0 37.5-16.8 37.5-37.5S924.4 791 903.8 791z"
+                  fill="currentColor"
+                />
+              </svg>
+              {showDot ? (
+                <svg className="bot-notify-dot" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M7.08444 11.0844L8.55132 6.68377H10.4487L11.9156 11.0844L16.3162 12.5513V14.4487L11.9156 15.9156L10.4487 20.3162H8.55132L7.08444 15.9156L2.68378 14.4487V12.5513L7.08444 11.0844ZM9.5 10.1623L8.82369 12.1912L8.19123 12.8237L6.16228 13.5L8.19123 14.1763L8.82369 14.8088L9.5 16.8377L10.1763 14.8088L10.8088 14.1763L12.8377 13.5L10.8088 12.8237L10.1763 12.1912L9.5 10.1623Z" fill="url(#sparkle-grad)"/>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M16.1507 5.15066L16.9308 2.81026H18.0692L18.8493 5.15066L21.1897 5.93079V7.06921L18.8493 7.84934L18.0692 10.1897H16.9308L16.1507 7.84934L13.8103 7.06921V5.93079L16.1507 5.15066Z" fill="url(#sparkle-grad)"/>
+                  <defs>
+                    <linearGradient id="sparkle-grad" x1="11.9368" y1="2.81026" x2="11.9368" y2="20.3162" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#00FFE1"/>
+                      <stop offset="1" stopColor="#2B00FF"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              ) : null}
+            </span>
+          </button>
 
-      <div
-        className={`bot-notify-tooltip${tooltipVisible ? ' visible' : ''}`}
-        style={{
-          left: tooltipPosRef.current.x,
-          top: tooltipPosRef.current.y,
-        }}
-      >
-        来了解我负责的产品～
-      </div>
-    </header>
+          <nav className="nav nav-desktop">
+            <NavContent {...navProps} />
+          </nav>
+        </div>
+
+        <div
+          className={`bot-notify-tooltip${tooltipVisible ? ' visible' : ''}`}
+          style={{
+            left: tooltipPosRef.current.x,
+            top: tooltipPosRef.current.y,
+          }}
+        >
+          来了解我负责的产品～
+        </div>
+      </header>
+
+      {createPortal(
+        <nav className={`nav-mobile${menuOpen ? ' nav-open' : ''}`}>
+          {menuOpen && (
+            <div className="nav-mobile-scroll">
+              <NavContent {...navProps} />
+            </div>
+          )}
+        </nav>,
+        document.body,
+      )}
+    </>
   )
 }

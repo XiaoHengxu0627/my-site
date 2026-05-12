@@ -194,8 +194,8 @@ export default function Bot() {
   const quickProducts = useMemo(() => {
     if (content.status !== 'ready') return []
     const base = content.locale === 'zh'
-      ? ['智能掌柜', '整车大数据门户', '游戏助手']
-      : ['Smart Manager', 'Vehicle Big Data Portal', 'Game Assistant']
+      ? ['智能掌柜', '整车大数据', '游戏助手']
+      : ['Smart Manager', 'Vehicle Big Data', 'Game Assistant']
     const weekly = content.locale === 'zh' ? 'AI周报' : 'AI Weekly'
     return [...base, weekly]
   }, [content.status, content.locale])
